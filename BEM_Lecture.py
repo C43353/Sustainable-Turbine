@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
 
-from BEM_Functions_1.0 import nodal
+from BEM_Functions import nodal
 
 """
 BEM Using CLD from lectures folder to match with lectures data
@@ -99,7 +99,8 @@ for n, V0 in enumerate(speeds):
 
     for r in segments:
 
-        
+        phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr = nodal(
+            R, r, V0, c, theta, omega, B, fcl, fcd)
 
         # Final Output Values
         phi_list.append(phi)
