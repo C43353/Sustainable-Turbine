@@ -99,8 +99,9 @@ for n, V0 in enumerate(speeds):
 
     for r in segments:
 
-        phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr = nodal(
-            R, r, V0, c, theta, omega, B, fcl, fcd)
+        phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr = nodal(R, r, V0, c,
+                                                              theta, omega, B,
+                                                              fcl, fcd)
 
         # Final Output Values
         phi_list.append(phi)

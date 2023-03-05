@@ -6,8 +6,9 @@ Created on Sat Mar  4 15:00:11 2023
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy import interpolate
+
+from BEM_Functions import nodal
 
 # Constants (currently)
 R = 20  # Radius (m)
@@ -18,9 +19,6 @@ omega = 2.83  # Angular Veolcity (rad/s)
 theta = 4.188  # Pitch Angle (degree)
 V0 = 10  # Wind Speed (m/s)
 ac = 1/3  # Critical Induction Factor (Just use 1/3 as stated in lecture)
-
-aa = 0.0  # Induction Factor
-ar = 0.0  # Angular Induction Factor
 
 # Open CSV containing aerofoil CLD profile
 file = open('Aerofoil-data\\NACA 63-415 AIRFOIL Aerodynamic Data.csv')
@@ -53,52 +51,16 @@ Cr_list = []
 F_list = []
 aa_list = []
 ar_list = []
+fn_list = []
+fr_list = []
 
 for r in segments:
-    xi = (omega * r) / V0  # Local Velocity Ratio
-    s = (c * B) / (2 * np.pi * r)  # Solidity
-
-    for i in range(10):
-
-        phi = np.arctan((1 - aa) / ((1 + ar) * xi))  # Relative Wind Angle
-        # phi_list.append(phi)
-
-        alpha = phi * (180 / np.pi) - theta  # Angle of Attack
-        # alpha_list.append(alpha)
-
-        Cl = float(fcl(alpha))  # Lift Coefficient
-        # Cl_list.append(Cl)
-        Cd = float(fcd(alpha))  # Drag Coefficient
-        # Cd_list.append(Cd)
-
-        Cn = Cl * np.cos(phi) + Cd * np.sin(phi)  # Normal Coefficient
-        # Cn_list.append(Cn)
-        Cr = Cl * np.sin(phi) - Cd * np.cos(phi)  # Tangent Coefficient
-        # Cr_list.append(Cr)
-
-        F = (2 / np.pi) * np.arccos(np.exp(- (B * (1 - (r / R))) / (2 * (r / R) * np.sin(phi) * r)))  # Prandtl Loss Factor
-        # F_list.append(F)
-
-        K = (4 * F * (np.sin(phi) ** 2)) / (s * Cn)  # Useful Coefficient
-
-        # aa_list.append(aa)
-        # ar_list.append(ar)
-
-        if aa < ac:
-            aa = 1 / (K + 1)  # Calc New Induction Factor
-        # From Lecture Calculation
-        if aa > ac:
-            aa = 1 - ((K * (1 - (2 * ac))) / 2) * (np.sqrt(1 + (4 / K) * (((1 - ac) / (1 - (2 * ac))) ** 2)) - 1)
-
-        # From Converting Matlab Code
-        # if aa > ac:
-            # aa = 1 + np.sqrt(1 + (4 / K) * (((1 - ac) / (1 - (2 * ac))) ** 2))
-            # aa = 1 - (K * ((1 - (2 * ac)) / (2)))
-
-        ar = 1 / ((4 * np.sin(phi) * np.cos(phi)) / (s * Cr) - 1)
+    phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr = nodal(R, r, V0, c, theta,
+                                                          omega, B, fcl, fcd)
 
     # An array of the iterations of the code (unnecessary?)
-    # outputs = np.array([phi_list, alpha_list, Cl_list, Cd_list, Cn_list, Cr_list, F_list, aa_list, ar_list])
+    # outputs = np.array([phi_list, alpha_list, Cl_list, Cd_list, Cn_list,
+    # Cr_list, F_list, aa_list, ar_list])
 
     # Final Output Values
     phi_list.append(phi)
@@ -110,5 +72,7 @@ for r in segments:
     F_list.append(F)
     aa_list.append(aa)
     ar_list.append(ar)
+    fn_list.append(fn)
+    fr_list.append(fr)
 
     # final.append([phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar])
