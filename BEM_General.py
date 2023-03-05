@@ -30,9 +30,7 @@ aa = 0.0  # Induction Factor
 ar = 0.0  # Angular Induction Factor
 
 # Open CSV containing aerofoil CLD profile
-file = open('C:\\Users\\C43353\\OneDrive - University of Southampton\\Year 3\\'
-            'Technology Fundamentals for Sustainable Energy\\Group Coursework'
-            '\\Code\\Aerofoil-data\\Profile-' + filenumb + '-CLD.csv')
+file = open('Aerofoil-data\\Profile-' + filenumb + '-CLD.csv')
 data = file.read()
 file.close()
 
