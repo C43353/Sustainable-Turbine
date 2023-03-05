@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 
 from BEM_Functions import nodal
 from BEM_Functions import cld_func
+from BEM_Functions import forces
 
 """
 BEM Using CLD from lectures folder to match with lectures data
@@ -25,6 +26,7 @@ Varies:
 
 Kind of works, power output doesn't have a peak and Cp is about half what it
 should be
+For any given outer radius the minimum radius has to be over 0.5m
 """
 
 # Constants (currently, may change to dependent on r)
@@ -44,8 +46,7 @@ omega = 2.83  # Angular Veolcity (rad/s) (may need to vary with wind speed?)
 
 fcl, fcd = cld_func('Aerofoil-data\\CLD.csv')
 
-data = []
-
+# Initialise the lists for the variable lists
 phi_out = []
 alpha_out = []
 Cl_out = []
@@ -64,6 +65,7 @@ Cp_out = []
 
 for n, V0 in enumerate(speeds):
 
+    # Initialise the lists for the variables
     phi_list = []
     alpha_list = []
     Cl_list = []
@@ -78,35 +80,12 @@ for n, V0 in enumerate(speeds):
     T = []
     tau = []
 
-    for r in segments:
+    # Perform the calculations over the radial positions
+    phi_list, alpha_list, Cl_list, Cd_list, Cn_list, Cr_list, F_list, \
+        aa_list, ar_list, fn_list, fr_list = \
+        zip(*[nodal(R, r, V0, c, theta, omega, B, fcl, fcd) for r in segments])
 
-        phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr = nodal(R, r, V0, c,
-                                                              theta, omega, B,
-                                                              fcl, fcd)
-
-        # Final Output Values
-        phi_list.append(phi)
-        alpha_list.append(alpha)
-        Cl_list.append(Cl)
-        Cd_list.append(Cd)
-        Cn_list.append(Cn)
-        Cr_list.append(Cr)
-        F_list.append(F)
-        aa_list.append(aa)
-        ar_list.append(ar)
-        fn_list.append(fn)
-        fr_list.append(fr)
-
-    # Calculate Normal Foce and Torque on Each Segment
-    for i in range(len(segments)-1):
-        j = i + 1
-        T.append((1/2) * (fn_list[j] + fn_list[i]) * (
-            segments[j] - segments[i]))
-
-        tau.append((1/6) * (((fr_list[j] + fr_list[i]) * ((
-            segments[j] ** 2) - (segments[i] ** 2))) + ((fr_list[j] * (
-                segments[j] ** 2)) - (fr_list[i] * (segments[i] ** 2))) - ((
-                    fr_list[j] - fr_list[i]) * (segments[j] * segments[i]))))
+    T, tau = forces(segments, fn_list, fr_list)
 
     P = B * omega * sum(tau)
     Cp = P / ((np.pi / 2) * rho * (R ** 2) * (V0 ** 3))

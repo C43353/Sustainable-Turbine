@@ -153,3 +153,20 @@ def nodal_plot(R, r, V0, c, theta, omega, B, fcl, fcd):
 
     return [phi_list, alpha_list, Cl_list, Cd_list, Cn_list, Cr_list,
             F_list, aa_list, ar_list]
+
+
+def forces(segments, fn_list, fr_list):
+    T = []
+    tau = []
+    # Calculate Normal Force and Torque on Each Segment
+    for i in range(len(segments)-1):
+        j = i + 1
+        T.append((1/2) * (fn_list[j] + fn_list[i]) * (
+            segments[j] - segments[i]))
+
+        tau.append((1/6) * (((fr_list[j] + fr_list[i]) * ((
+            segments[j] ** 2) - (segments[i] ** 2))) + ((fr_list[j] * (
+                segments[j] ** 2)) - (fr_list[i] * (segments[i] ** 2))) - ((
+                    fr_list[j] - fr_list[i]) * (segments[j] * segments[i]))))
+
+    return [T, tau]
