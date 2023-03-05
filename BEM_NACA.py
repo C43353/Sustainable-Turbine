@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Mar  3 15:41:32 2023
+Created on Sat Mar  4 12:21:57 2023
 
 @author: C43353
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy as sp
 from scipy import interpolate
 
 # Constants (currently)
 R = 80  # Radius (m)
-r = 40.5  # Radial Position (m) (will have to iterate over)
+r = 60  # Radial Position (m) (will have to iterate over)
 c = 3.256  # Aerofoil Chord Length (m) (Depends on radial position)
 B = 3  # Number of Blades
 omega = 2.83  # Angular Veolcity (rad/s)
@@ -28,11 +27,11 @@ ar = 0.0  # Angular Induction Factor
 
 # Open CSV containing aerofoil CLD profile
 file = open('Aerofoil-data\\NACA 63-415 AIRFOIL Aerodynamic Data.csv')
-data = file.read()
+CLD = file.read()
 file.close()
 
 # Split CSV into lines and convert to numeric
-lines = data.split('\n')
+lines = CLD.split('\n')
 lines.pop(0)
 info = []
 for line in lines:
@@ -67,33 +66,57 @@ plt.plot(np.linspace(-15.5, 19.25, 1000), fcd(np.linspace(-15.5, 19.25, 1000)))
 plt.title("Func Cd")
 plt.show()
 
+phi_list = []
+alpha_list = []
+Cl_list = []
+Cd_list = []
+Cn_list = []
+Cr_list = []
+F_list = []
+aa_list = []
+ar_list = []
+
 for i in range(10):
 
     phi = np.arctan((1 - aa) / ((1 + ar) * xi))  # Relative Wind Angle
+    phi_list.append(phi)
 
     alpha = phi * (180 / np.pi) - theta  # Angle of Attack
+    alpha_list.append(alpha)
 
-    Cl = fcl(alpha)
-    Cd = fcd(alpha)
+    Cl = fcl(alpha)  # Lift Coefficient
+    Cl_list.append(Cl)
+    Cd = fcd(alpha)  # Drag Coefficient
+    Cd_list.append(Cd)
 
-    Cn = Cl * np.cos(phi) + Cd * np.sin(phi)
-    Cr = Cl * np.sin(phi) - Cd * np.cos(phi)
+    Cn = Cl * np.cos(phi) + Cd * np.sin(phi)  # Normal Coefficient
+    Cn_list.append(Cn)
+    Cr = Cl * np.sin(phi) - Cd * np.cos(phi)  # Tangent Coefficient
+    Cr_list.append(Cr)
 
-    F = (2 / np.pi) * np.arccos(np.exp(- (B * (1 - (r / R))) / (2 * (r / R) * np.sin(phi) * r)))
+    F = (2 / np.pi) * np.arccos(np.exp(- (B * (1 - (r / R))) / (2 * (r / R) * np.sin(phi) * r)))  # Prandtl Loss Factor
+    F_list.append(F)
 
-    K = (4 * F * (np.sin(phi) ** 2)) / (s * Cn)
+    K = (4 * F * (np.sin(phi) ** 2)) / (s * Cn)  # Useful Coefficient
 
-    print(aa, ar, phi, alpha, Cl, Cd, Cn, Cr)
+    aa_list.append(aa)
+    ar_list.append(ar)
 
-    aa = 1 / (K + 1)
+    if aa < ac:
+        aa = 1 / (K + 1)  # Calc New Induction Factor
     # From Lecture Calculation
     if aa > ac:
-        print("over")
         aa = 1 - ((K * (1 - (2 * ac))) / 2) * (np.sqrt(1 + (4 / K) * (((1 - ac) / (1 - (2 * ac))) ** 2)) - 1)
 
     # From Converting Matlab Code
     # if aa > ac:
-    #     aa = 1 + np.sqrt(1 + (4 / K) * (((1 - ac) / (1 - (2 * ac))) ** 2))
-    #     aa = 1 - (K * ((1 - (2 * ac)) / (2)))
+        # aa = 1 + np.sqrt(1 + (4 / K) * (((1 - ac) / (1 - (2 * ac))) ** 2))
+        # aa = 1 - (K * ((1 - (2 * ac)) / (2)))
 
     ar = 1 / ((4 * np.sin(phi) * np.cos(phi)) / (s * Cr) - 1)
+
+# An array of the iterations of the code (unnecessary?)
+outputs = np.array([phi_list, alpha_list, Cl_list, Cd_list, Cn_list, Cr_list, F_list, aa_list, ar_list])
+
+# An array of the final output values
+final = np.array([phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar])
