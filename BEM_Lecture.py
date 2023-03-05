@@ -25,8 +25,12 @@ Varies:
     wind speed
 
 Kind of works, power output doesn't have a peak and Cp is about half what it
-should be
+should be according to lecture notes graphs
+
 For any given outer radius the minimum radius has to be over 0.5m
+
+Not sure if final segmental force and torque plots are correct (have just
+removed the lowest radial node to allow plotting)
 """
 
 # Constants (currently, may change to dependent on r)
@@ -36,7 +40,7 @@ rho = 1.225  # Air Density (kg/m^3)
 ac = 1/3  # Critical Induction Factor (Just use 1/3 as stated in lecture)
 
 # Variable Constants
-segments = np.linspace(1, R-0.1, 17)  # Radial Position of Nodes (m)
+segments = np.linspace(1, R-0.1, 20)  # Radial Position of Nodes (m)
                                         # (for some reason doesn't work below
                                         # 0.5m and tip causes divide by 0)
 speeds = np.linspace(5, 20, 20)  # Wind Speed (m/s)
@@ -88,7 +92,7 @@ for n, V0 in enumerate(speeds):
     T, tau = forces(segments, fn_list, fr_list)
 
     P = B * omega * sum(tau)
-    Cp = P / ((np.pi / 2) * rho * (R ** 2) * (V0 ** 3))
+    Cp = P / ((1/2) * np.pi * rho * (R ** 2) * (V0 ** 3))
 
     phi_out.append(phi_list)
     alpha_out.append(alpha_list)
@@ -129,6 +133,36 @@ plt.ylabel("C$_p$ $\\times$ 27/16")
 plt.ylim(0, 1)
 plt.show()
 
+# for n in range(len(speeds)):
+#     plt.figure(1, figsize=(6, 6))
+#     plt.plot(segments, aa_out[n], marker='o')
+#     plt.title("Induction Factor")
+#     plt.xlabel("Radial Position (m)")
+# plt.legend((speeds))
+# plt.show()
+
+# for n in range(len(speeds)):
+#     plt.figure(1, figsize=(6, 6))
+#     plt.plot(segments, ar_out[n], marker='o')
+#     plt.title("Radial Induction Factor")
+#     plt.xlabel("Radial Position (m)")
+# plt.legend((speeds))
+# plt.show()
+
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, aa_out, 50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Induction Factor")
+plt.show()
+
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, ar_out, 50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Radial Induction Factor")
+plt.show()
+
 # plt.figure(1, figsize=(6, 6))
 # plt.plot(segments, aa_list, marker='o')
 # plt.plot(segments, ar_list, marker='o')
@@ -143,6 +177,13 @@ plt.show()
 # plt.xlabel("Radial Position (m)")
 # plt.show()
 
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, F_out, 50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Prandtl Loss Factor")
+plt.show()
+
 # plt.figure(1, figsize=(6, 6))
 # plt.plot(segments, alpha_list, marker='o')
 # plt.plot(segments, phi_list, marker='o')
@@ -151,20 +192,70 @@ plt.show()
 # plt.legend((r"$\alpha$", r"$\phi$"))
 # plt.show()
 
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, alpha_out, 50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label=r"Angle of Attack ($\alpha$)")
+plt.show()
+
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, phi_out, 50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label=r"Pitch Angle ($\phi$)")
+plt.show()
+
 # plt.figure(1, figsize=(6, 6))
-# plt.plot(segments, np.array(fn_list)/1000, marker='o')
-# plt.plot(segments, np.array(fr_list)/1000, marker='o')
+# plt.plot(segments, np.array(fn_out[7])/1000, marker='o')
+# plt.plot(segments, np.array(fr_out[7])/1000, marker='o')
 # plt.title("Nodal Force")
 # plt.xlabel("Radial Position (m)")
 # plt.ylabel("f$_{N, i}$, f$_{R, i}$ (kN/m)")
-# plt.legend(("F$_{N, i}$", "F$_{R, i}$"))
+# plt.legend(("f$_{N, i}$", "f$_{R, i}$"))
 # plt.show()
 
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, np.array(fn_out)/1000, 50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Normal Nodal Force (kN/m)")
+plt.show()
+
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, np.array(fr_out)/1000, 50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Rotational Nodal Force (kN/m)")
+plt.show()
+
 # plt.figure(1, figsize=(6, 6))
-# plt.plot(segments[1:], np.array(T)/1000, marker='o')
-# plt.plot(segments[1:], np.array(tau)/1000, marker='o')
+# plt.plot(segments[1:], np.array(T_out[7])/1000, marker='o')
+# plt.plot(segments[1:], np.array(tau_out[7])/1000, marker='o')
 # plt.title("Segmental Force")
 # plt.xlabel("Radial Position (m)")
 # plt.ylabel(r"$\tau_i$ (kNm), T$_i$ (kN)")
 # plt.legend(("T$_i$", r"$\tau_i$"))
 # plt.show()
+
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments[-(len(segments)-1):], speeds, np.array(T_out)/1000,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Normal Segment Force (kN)")
+plt.show()
+
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments[-(len(segments)-1):], speeds, np.array(tau_out)/1000,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Segmental Torque (kNm)")
+plt.show()
+
+# Attempting to do a 3D plot like in lecture notes
+# ax = plt.axes(projection="3d")
+# ax.invert_xaxis()
+# ax.invert_yaxis()
+# ax.contour3D(segments, speeds, aa_out)
