@@ -7,9 +7,9 @@ Created on Sun Mar  5 10:49:42 2023
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import interpolate
 
 from BEM_Functions import nodal
+from BEM_Functions import cld_func
 
 """
 BEM Using CLD from lectures folder to match with lectures data
@@ -42,26 +42,7 @@ c = 1.29  # Aerofoil Chord Length (m) (Depends on radial position)
 theta = 4.85  # Pitch Angle (degree) (Depends on radial position)
 omega = 2.83  # Angular Veolcity (rad/s) (may need to vary with wind speed?)
 
-
-# Open CSV containing aerofoil CLD profile
-file = open('Aerofoil-data\\CLD.csv')
-CLD = file.read()
-file.close()
-
-# Split CSV into lines and convert to numeric
-lines = CLD.split('\n')
-lines.pop(0)
-info = []
-for line in lines:
-    if len(line) != 0:
-        info.append([float(i) for i in line.split(',')])
-
-# Convert aerofoil info into np.array to allow easier calcuations
-info = np.array(info)
-
-# Create a function to interpolate values for Cl and Cd
-fcl = interpolate.interp1d(info[:, 0], info[:, 1])
-fcd = interpolate.interp1d(info[:, 0], info[:, 2])
+fcl, fcd = cld_func('Aerofoil-data\\CLD.csv')
 
 data = []
 

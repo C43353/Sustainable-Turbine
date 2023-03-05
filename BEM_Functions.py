@@ -6,11 +6,36 @@ Created on Sun Mar  5 10:32:22 2023
 """
 
 import numpy as np
+from scipy import interpolate
 
 """
 nodal - function that outputs the data for given radius
 nodal_plot - function that gives the progression over the 100 iterations
 """
+
+
+def cld_func(filename):
+    # Open CSV containing aerofoil CLD profile
+    file = open(filename)
+    CLD = file.read()
+    file.close()
+
+    # Split CSV into lines and convert to numeric
+    lines = CLD.split('\n')
+    lines.pop(0)
+    info = []
+    for line in lines:
+        if len(line) != 0:
+            info.append([float(i) for i in line.split(',')])
+
+    # Convert aerofoil info into np.array to allow easier calcuations
+    info = np.array(info)
+
+    # Create a function to interpolate values for Cl and Cd
+    fcl = interpolate.interp1d(info[:, 0], info[:, 1])
+    fcd = interpolate.interp1d(info[:, 0], info[:, 2])
+
+    return [fcl, fcd]
 
 
 def nodal(R, r, V0, c, theta, omega, B, fcl, fcd):
