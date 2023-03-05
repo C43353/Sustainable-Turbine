@@ -14,16 +14,17 @@ from BEM_Functions import forces
 
 """
 BEM Using CLD from lectures folder to match with lectures data
-Changing calculations to use functions instead
-code has -
+
+Code has -
 Constants:
     angular velocity
     pitch angle
     chord length
-Varies:
+Variables:
     radial position
     wind speed
 
+Notes -
 Kind of works, power output doesn't have a peak and Cp is about half what it
 should be according to lecture notes graphs
 
