@@ -65,18 +65,26 @@ def nodal(R, r, V0, c, theta, omega, B, fcl, fcd):
 
         K = (4 * F * (np.sin(phi) ** 2)) / (s * Cn)  # Useful Coefficient
 
-        aa = 1 / (K + 1)  # Calc New Induction Factor
+        # aa = 1 / (K + 1)  # Calc New Induction Factor
+        # # From Lecture Calculation
+        # if aa > ac:
+        #     aa = 1 - ((K * (1 - (2 * ac))) / 2) * (
+        #         np.sqrt(1 + (4 / K) * (((1 - ac) / (
+        #             1 - (2 * ac))) ** 2)) - 1)
+
+        if K > (ac ** -1) - 1:
+            aa = 1 / (K + 1)  # Calc New Induction Factor
         # From Lecture Calculation
-        if aa > ac:
+        if K <= (ac ** -1) - 1:
             aa = 1 - ((K * (1 - (2 * ac))) / 2) * (
                 np.sqrt(1 + (4 / K) * (((1 - ac) / (
                     1 - (2 * ac))) ** 2)) - 1)
 
         # From Converting Matlab Code
         # if aa > ac:
-            # aa = 1 + np.sqrt(
-            # 1 + (4 / K) * (((1 - ac) / (1 - (2 * ac))) ** 2))
-            # aa = 1 - (K * ((1 - (2 * ac)) / (2)))
+        #     aa = 1 + np.sqrt(
+        #         1 + (4 / K) * (((1 - ac) / (1 - (2 * ac))) ** 2))
+        #     aa = 1 - (K * ((1 - (2 * ac)) / (2)))
 
         ar = 1 / ((4 * np.sin(phi) * np.cos(phi)) / (s * Cr) - 1)
 
@@ -87,7 +95,7 @@ def nodal(R, r, V0, c, theta, omega, B, fcl, fcd):
     fn = (1 / 2) * Cn * rho * (Vrel ** 2) * c  # Normal Force at Node
     fr = (1/2) * Cr * rho * (Vrel ** 2) * c  # Rotational Force at Node
 
-    return [phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr]
+    return [phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, Vrel]
 
 
 def nodal_plot(R, r, V0, c, theta, omega, B, fcl, fcd):

@@ -20,7 +20,7 @@ BEM Using CLD from lectures folder to match with lectures data
 
 Code has -
 Constants:
-    angular velocity (with wind)
+    angular velocity (with wind or stay constant to keep power const)
     pitch angle (with radial position)
     chord length (with radial position)
 Variables:
@@ -48,10 +48,10 @@ rho = 1.225  # Air Density (kg/m^3)
 ac = 1/3  # Critical Induction Factor (Just use 1/3 as stated in lecture)
 
 # Variable Constants
-segments = np.linspace(1, R-0.1, 20)  # Radial Position of Nodes (m)
+segments = np.linspace(5, R-0.1, 20)  # Radial Position of Nodes (m)
                                         # (for some reason doesn't work below
                                         # 0.5m and tip causes divide by 0)
-speeds = np.linspace(5, 20, 20)  # Wind Speed (m/s)
+speeds = np.linspace(5, 20, 1)  # Wind Speed (m/s)
 c = 1.29  # Aerofoil Chord Length (m) (Depends on radial position)
 theta = 4.85  # Pitch Angle (degree) (Depends on radial position)
 omega = 2.83  # Angular Veolcity (rad/s) (may need to vary with wind speed?)
@@ -70,6 +70,7 @@ aa_out = []
 ar_out = []
 fn_out = []
 fr_out = []
+Vrel_out = []
 T_out = []
 tau_out = []
 P_out = []
@@ -89,12 +90,13 @@ for n, V0 in enumerate(speeds):
     ar_list = []
     fn_list = []
     fr_list = []
+    Vrel_list = []
     T = []
     tau = []
 
     # Perform the calculations over the radial positions
     phi_list, alpha_list, Cl_list, Cd_list, Cn_list, Cr_list, F_list, \
-        aa_list, ar_list, fn_list, fr_list = \
+        aa_list, ar_list, fn_list, fr_list, Vrel_list = \
         zip(*[BEM.nodal(R, r, V0, c, theta, omega, B,
                         fcl, fcd) for r in segments])
 
@@ -114,6 +116,7 @@ for n, V0 in enumerate(speeds):
     ar_out.append(ar_list)
     fn_out.append(fn_list)
     fr_out.append(fr_list)
+    Vrel_out.append(Vrel_list)
     T_out.append(T)
     tau_out.append(tau)
     P_out.append(P)
@@ -268,3 +271,10 @@ plt.show()
 # ax.invert_xaxis()
 # ax.invert_yaxis()
 # ax.contour3D(segments, speeds, aa_out)
+
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, Vrel_out, 50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Relative Wind Speed (m/s)")
+plt.show()
