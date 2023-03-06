@@ -20,16 +20,20 @@ BEM Using CLD from lectures folder to match with lectures data
 
 Code has -
 Constants:
-    angular velocity
-    pitch angle
-    chord length
+    angular velocity (with wind)
+    pitch angle (with radial position)
+    chord length (with radial position)
 Variables:
     radial position
     wind speed
 
 Notes -
 Kind of works, power output doesn't have a peak and Cp is about half what it
-should be according to lecture notes graphs
+should be according to lecture notes graphs (may be due to having a constant
+                                             chord length?)
+
+Appears to work for 20 m radius but not for much bigger without decreasing the
+outer radial node
 
 For any given outer radius the minimum radius has to be over 0.5m
 
