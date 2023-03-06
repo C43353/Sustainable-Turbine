@@ -22,10 +22,10 @@ Code has -
 Constants:
     angular velocity (with wind or stay constant to keep power const)
     pitch angle (with radial position)
-    chord length (with radial position)
 Variables:
     radial position
     wind speed
+    chord length (is a linear func at the moment, should be more advanced)
 
 Notes -
 Kind of works, power output doesn't have a peak and Cp is about half what it
@@ -43,16 +43,19 @@ removed the lowest radial node to allow plotting)
 
 # Constants (currently, may change to dependent on r)
 B = 3  # Number of Blades
-R = 20.5  # Radius (m)
+R = 24.5  # Radius (m)
 rho = 1.225  # Air Density (kg/m^3)
 ac = 1/3  # Critical Induction Factor (Just use 1/3 as stated in lecture)
 
 # Variable Constants
-segments = np.linspace(5, R-0.1, 20)  # Radial Position of Nodes (m)
+segments = np.linspace(5, R-0.5, 20)  # Radial Position of Nodes (m)
                                         # (for some reason doesn't work below
                                         # 0.5m and tip causes divide by 0)
-speeds = np.linspace(5, 20, 1)  # Wind Speed (m/s)
-c = 1.29  # Aerofoil Chord Length (m) (Depends on radial position)
+speeds = np.linspace(5, 20, 20)  # Wind Speed (m/s)
+
+chords = np.linspace(1.3, 0.1, len(segments))  # Chord Length for Radius
+                                               # (Need to make function for
+                                               # this, (not linear))
 theta = 4.85  # Pitch Angle (degree) (Depends on radial position)
 omega = 2.83  # Angular Veolcity (rad/s) (may need to vary with wind speed?)
 
@@ -75,6 +78,8 @@ T_out = []
 tau_out = []
 P_out = []
 Cp_out = []
+Ct_out = []
+Cpinit_out = []
 
 for n, V0 in enumerate(speeds):
 
@@ -91,14 +96,31 @@ for n, V0 in enumerate(speeds):
     fn_list = []
     fr_list = []
     Vrel_list = []
+    Ct_list = []
+    Cpinit_list = []
     T = []
     tau = []
 
     # Perform the calculations over the radial positions
-    phi_list, alpha_list, Cl_list, Cd_list, Cn_list, Cr_list, F_list, \
-        aa_list, ar_list, fn_list, fr_list, Vrel_list = \
-        zip(*[BEM.nodal(R, r, V0, c, theta, omega, B,
-                        fcl, fcd) for r in segments])
+    for m, r in enumerate(segments):
+        c = chords[m]
+        phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, Vrel, Ct, Cpinit = \
+            BEM.nodal(R, r, V0, c, theta, omega, B, fcl, fcd)
+
+        phi_list.append(phi)
+        alpha_list.append(alpha)
+        Cl_list.append(Cl)
+        Cd_list.append(Cd)
+        Cn_list.append(Cr)
+        Cr_list.append(Cn)
+        F_list.append(F)
+        aa_list.append(aa)
+        ar_list.append(ar)
+        fn_list.append(fn)
+        fr_list.append(fr)
+        Vrel_list.append(Vrel)
+        Ct_list.append(Ct)
+        Cpinit_list.append(Cpinit)
 
     T, tau = BEM.forces(segments, fn_list, fr_list)
 
@@ -117,6 +139,8 @@ for n, V0 in enumerate(speeds):
     fn_out.append(fn_list)
     fr_out.append(fr_list)
     Vrel_out.append(Vrel_list)
+    Ct_out.append(Ct_list)
+    Cpinit_out.append(Cpinit_list)
     T_out.append(T)
     tau_out.append(tau)
     P_out.append(P)

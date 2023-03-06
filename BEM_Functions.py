@@ -45,8 +45,9 @@ def nodal(R, r, V0, c, theta, omega, B, fcl, fcd):
     aa = 0.0  # Induction Factor
     ar = 0.0  # Angular Induction Factor
 
-    xi = (omega * r) / V0  # Local Velocity Ratio
     s = (c * B) / (2 * np.pi * r)  # Solidity
+    # tsr = (omega * R) / V0  # Tip Speed Ratio
+    xi = (omega * r) / V0  # Local Velocity Ratio
 
     for i in range(100):
         phi = np.arctan((1 - aa) / ((1 + ar) * xi))  # Relative Wind Angle
@@ -95,7 +96,10 @@ def nodal(R, r, V0, c, theta, omega, B, fcl, fcd):
     fn = (1 / 2) * Cn * rho * (Vrel ** 2) * c  # Normal Force at Node
     fr = (1/2) * Cr * rho * (Vrel ** 2) * c  # Rotational Force at Node
 
-    return [phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, Vrel]
+    Ct = 4 * aa * (1 - aa)
+    Cp = 4 * aa * ((1 - aa) ** 2)
+
+    return [phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, Vrel, Ct, Cp]
 
 
 def nodal_plot(R, r, V0, c, theta, omega, B, fcl, fcd):
