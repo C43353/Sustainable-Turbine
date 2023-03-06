@@ -8,9 +8,12 @@ Created on Sun Mar  5 10:49:42 2023
 import numpy as np
 import matplotlib.pyplot as plt
 
-from BEM_Functions import nodal
-from BEM_Functions import cld_func
-from BEM_Functions import forces
+import BEM_Functions as BEM
+
+# imports specific functions from file
+# from BEM_Functions import nodal
+# from BEM_Functions import cld_func
+# from BEM_Functions import forces
 
 """
 BEM Using CLD from lectures folder to match with lectures data
@@ -49,7 +52,7 @@ c = 1.29  # Aerofoil Chord Length (m) (Depends on radial position)
 theta = 4.85  # Pitch Angle (degree) (Depends on radial position)
 omega = 2.83  # Angular Veolcity (rad/s) (may need to vary with wind speed?)
 
-fcl, fcd = cld_func('Aerofoil-data\\CLD.csv')
+fcl, fcd = BEM.cld_func('Aerofoil-data\\CLD.csv')
 
 # Initialise the lists for the variable lists
 phi_out = []
@@ -88,9 +91,10 @@ for n, V0 in enumerate(speeds):
     # Perform the calculations over the radial positions
     phi_list, alpha_list, Cl_list, Cd_list, Cn_list, Cr_list, F_list, \
         aa_list, ar_list, fn_list, fr_list = \
-        zip(*[nodal(R, r, V0, c, theta, omega, B, fcl, fcd) for r in segments])
+        zip(*[BEM.nodal(R, r, V0, c, theta, omega, B,
+                        fcl, fcd) for r in segments])
 
-    T, tau = forces(segments, fn_list, fr_list)
+    T, tau = BEM.forces(segments, fn_list, fr_list)
 
     P = B * omega * sum(tau)
     Cp = P / ((1/2) * np.pi * rho * (R ** 2) * (V0 ** 3))
