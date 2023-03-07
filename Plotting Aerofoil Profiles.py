@@ -8,7 +8,7 @@ Created on Fri Mar  3 23:09:09 2023
 import numpy as np
 import matplotlib.pyplot as plt
 
-number = 0  # Set the file number containing aerofoil data
+number = 11  # Set the file number containing aerofoil data
 filenumb = f"{number:02d}"  # Force the number to be 0x for 0-9
 
 file = open('Aerofoil-data\\Profile-' + filenumb + '-Geom.csv')

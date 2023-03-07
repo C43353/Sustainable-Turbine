@@ -12,7 +12,7 @@ from BEM_Functions import nodal
 
 # Constants (currently)
 R = 20  # Radius (m)
-segments = np.linspace(8.2, 19.5, 17)  # Radial Position of Segments (m)
+segments = np.linspace(9, 19.5, 17)  # Radial Position of Segments (m)
 c = 3.256  # Aerofoil Chord Length (m) (Depends on radial position)
 B = 3  # Number of Blades
 omega = 2.83  # Angular Veolcity (rad/s)
@@ -55,8 +55,10 @@ fn_list = []
 fr_list = []
 
 for r in segments:
-    phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr = nodal(R, r, V0, c, theta,
-                                                          omega, B, fcl, fcd)
+    phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, _, _, _ = nodal(R, r, V0, c,
+                                                                   theta,
+                                                                   omega, B,
+                                                                   fcl, fcd)
 
     # An array of the iterations of the code (unnecessary?)
     # outputs = np.array([phi_list, alpha_list, Cl_list, Cd_list, Cn_list,

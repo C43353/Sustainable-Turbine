@@ -16,7 +16,7 @@ filenumb = f"{number:02d}"  # Force the number to be 0x for 0-9
 
 # Constants (currently)
 R = 80  # Radius (m)
-r = 40.5  # Radial Position (m) (will have to iterate over)
+r = 0.5  # Radial Position (m) (will have to iterate over)
 c = 3.256  # Aerofoil Chord Length (m) (Depends on radial position)
 B = 3  # Number of Blades
 omega = 2.83  # Angular Veolcity (rad/s)
@@ -56,7 +56,7 @@ plt.show()
 plt.figure(1, figsize=(18, 6))
 plt.subplots_adjust(wspace=0.25)
 plt.subplot(121)
-plt.plot(np.linspace(-180, 180, 1000), fcd(np.linspace(-180, 180, 1000)))
+plt.plot(info[:, 0], info[:, 2])
 plt.title("CSV Cd")
 plt.subplot(122)
 plt.plot(np.linspace(-180, 180, 1000), fcd(np.linspace(-180, 180, 1000)))
