@@ -25,7 +25,8 @@ Constants:
 Variables:
     radial position
     wind speed
-    chord length (is a linear func at the moment, should be more advanced)
+    chord length (is a linear func at the moment, should be more advanced
+                  maybe use c = (5.6 * (R ** 2)) / (B * Cl * r * (tsr ** 2)))
 
 Notes -
 Kind of works, power output doesn't have a peak and Cp is about half what it
@@ -45,19 +46,24 @@ removed the lowest radial node to allow plotting)
 B = 3  # Number of Blades
 R = 20.94  # Radius (m)
 rho = 1.225  # Air Density (kg/m^3)
+omega = 2.83  # Angular Veolcity (rad/s) (Constant for varying wind speeds)
 ac = 1/3  # Critical Induction Factor (Just use 1/3 as stated in lecture)
 
 # Variable Constants
-segments = np.linspace(5, R-0.5, 20)  # Radial Position of Nodes (m)
-                                        # (for some reason doesn't work below
-                                        # 0.5m and tip causes divide by 0)
-speeds = np.linspace(5, 20, 20)  # Wind Speed (m/s)
 
-chords = np.linspace(1.3, 0.1, len(segments))  # Chord Length for Radius
-                                               # (Need to make function for
-                                               # this, (not linear))
-theta = 4.85  # Pitch Angle (degree) (Depends on radial position)
-omega = 2.83  # Angular Veolcity (rad/s) (may need to vary with wind speed?)
+# (for some reason doesn't work below 0.5m and tip causes divide by 0)
+# is based on the angular velocity (or tsr)
+segments = np.linspace(0.6, R-0.1, 20)  # Radial Position of Nodes (m)
+
+speeds = np.linspace(5, 30, 20)  # Wind Speed (m/s)
+
+# (Need to make function for this, (not linear))
+chords = np.linspace(1.5, 0.5, len(segments))  # Chord Length for Radius
+
+# (Need to do similar to chords, based on radial position)
+theta = 4.85  # Pitch Angle (degree)
+
+
 
 fcl, fcd = BEM.cld_func('Aerofoil-data\\CLD.csv')
 
@@ -103,7 +109,8 @@ for n, V0 in enumerate(speeds):
 
     # Perform the calculations over the radial positions
     for m, r in enumerate(segments):
-        c = chords[m]
+        c = chords[m]  # Chord Length from list (can do same for theta)
+
         phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, Vrel, Ct, Cpinit = \
             BEM.nodal(R, r, V0, c, theta, omega, B, fcl, fcd)
 
