@@ -15,7 +15,7 @@ r = 0.3103  # Radial Position (m)
 c = 1.29  # Chord Length (m)
 B = 3  # Number of Blades
 omega = 2.83  # Angular Velocity (rad/s)
-theta = 4.85 # Pitch Angle (degrees)
+theta = 4.85  # Pitch Angle (degrees)
 ac = 1/3
 
 xi = (omega * r) / V0  # Local Velocity Ratio
@@ -51,8 +51,8 @@ for i in range(iterations):
     Cr = Cl * np.sin(phi) - Cd * np.cos(phi)  # Tangential Force Coefficient
 
     # Prandtl Loss Factor
-    F = (2 / np.pi) * np.arccos(np.exp(- (
-        B * (1 - (r / R))) / (2 * (r / R) * np.sin(phi) * r)))
+    F = (2 / np.pi) * np.arccos(np.exp(- (B * (1 - (r / R))) /
+                                       (2 * (r / R) * np.sin(phi))))
 
     K = (4 * F * (np.sin(phi) ** 2)) / (s * Cn)  # Useful Coefficient
 

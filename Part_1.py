@@ -20,9 +20,9 @@ This includes the thrust coefficient (Ct) and peak loss factor (F).
 
 P = 0.5E6  # Desired Power Output (MW)
 V0 = 10  # Nominal Wind Speed (m/s)
-tsr = 8  # Nominal Tip Speed Ratio
+tsr = 5  # Nominal Tip Speed Ratio
 B = 3  # Number of Turbine Blades
-c = 1  # Chord Length (m)
+c = 1.29  # Chord Length (m)
 theta = 4.85  # Pitch Angle (degrees)
 
 rho = 1.225  # Air Density (kg/m^3)
@@ -37,14 +37,11 @@ omega = (tsr * V0) / R  # Angular Velocity (rad/s)
 print(f"And if the Nominal Tip Speed Ratio is {tsr} Then the Angular "
       f"Velocity is {round(omega, 2)} rad/s")
 
-# R = 12
-# omega = 2.83
-r = 7
+r = 10
 
-xi = (tsr * R) / r  # Local Velocity Ratio
+xi = (tsr * r) / R  # Local Velocity Ratio
 s = (c * B) / (2 * np.pi * r)  # Solidity
-
-# xi = (omega * r) / V0
+omega = (tsr * V0) / R  # Angular Velocity (constant over different radii)
 
 aa = 0  # Initial Induction Factor
 ar = 0  # Initial Radial Induction Factor
@@ -62,7 +59,7 @@ ar_list = []
 K_list = []
 
 # Iterate to a constant value (1D Actuator theory also invalid for a > 0.5)
-for i in range(100):
+for i in range(20):
     # Relative Wind Angle (radians)
     phi = np.arctan((1 - aa) / ((1 + ar) * xi))
 
