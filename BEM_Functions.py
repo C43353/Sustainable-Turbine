@@ -109,7 +109,7 @@ def nodal_c(R, r, V0, theta, omega, B, fcl, fcd):
 
     tsr = (omega * R) / V0  # Tip Speed Ratio
     xi = (omega * r) / V0  # Local Velocity Ratio
-
+    c_list = []
     for i in range(100):
         phi = np.arctan((1 - aa) / ((1 + ar) * xi))  # Relative Wind Angle
 
@@ -122,6 +122,7 @@ def nodal_c(R, r, V0, theta, omega, B, fcl, fcd):
         Cr = Cl * np.sin(phi) - Cd * np.cos(phi)  # Tangent Coefficient
 
         c = (5.6 * (R ** 2)) / (B * Cl * r * (tsr ** 2))  # Chord Length
+        c = ((8 * np.pi * r) / (B * Cl)) * (np.sin(phi) / (3 * xi))
         s = (c * B) / (2 * np.pi * r)  # Solidity
 
         # Prandtl Loss Factor
@@ -150,6 +151,7 @@ def nodal_c(R, r, V0, theta, omega, B, fcl, fcd):
         #         ((1 - ac) / (1 - (2 * ac))) ** 2)) - 1)
 
         ar = 1 / ((4 * F * np.sin(phi) * np.cos(phi)) / (s * Cr) - 1)
+        c_list.append(c)
 
     # Relative Wind Speed (Both equations near identical output)
     Vrel = ((1-aa)/(np.sin(phi))) * V0

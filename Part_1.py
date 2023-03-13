@@ -22,6 +22,7 @@ P = 0.5E6  # Desired Power Output (MW)
 V0 = 10  # Nominal Wind Speed (m/s)
 tsr = 5  # Nominal Tip Speed Ratio
 B = 3  # Number of Turbine Blades
+r = 10  # Radial Position (m)
 c = 1.29  # Chord Length (m)
 theta = 4.85  # Pitch Angle (degrees)
 
@@ -37,7 +38,6 @@ omega = (tsr * V0) / R  # Angular Velocity (rad/s)
 print(f"And if the Nominal Tip Speed Ratio is {tsr} Then the Angular "
       f"Velocity is {round(omega, 2)} rad/s")
 
-r = 10
 
 xi = (tsr * r) / R  # Local Velocity Ratio
 s = (c * B) / (2 * np.pi * r)  # Solidity
