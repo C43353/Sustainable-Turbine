@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Mar  3 23:09:09 2023
+Created on Wed Mar 15 17:09:52 2023
 
 @author: C43353
 """
@@ -8,7 +8,9 @@ Created on Fri Mar  3 23:09:09 2023
 import numpy as np
 import matplotlib.pyplot as plt
 
-for i in range(51):
+plt.figure(1, figsize=(6, 6))
+
+for i in [0, 0, 5, 46, 19, 27, 10, 24, 28, 22, 20, 39, 43, 37, 45, 44, 35]:
     number = i  # Set the file number containing aerofoil data
     filenumb = f"{number:02d}"  # Force the number to be 0x for 0-9
 
@@ -29,11 +31,8 @@ for i in range(51):
     x = info[:, 0]
     y = info[:, 1]
 
-    plt.figure(1, figsize=(6, 6))
     plt.plot(x, y)
     plt.xlim(-0.1, 1.1)
     plt.ylim(-0.6, 0.6)
-    plt.title(f"{number:02d}")
+    plt.title("Overlay Plot of Profiles")
     plt.axhline(y=0, color="black", linestyle="--")
-    plt.savefig(f"Profiles\\{number:02d}")
-    plt.show()

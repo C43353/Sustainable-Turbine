@@ -20,11 +20,11 @@ This includes the thrust coefficient (Ct) and peak loss factor (F).
 
 P = 0.5E6  # Desired Power Output (MW)
 V0 = 10  # Nominal Wind Speed (m/s)
-tsr = 5  # Nominal Tip Speed Ratio
+tsr = 6  # Nominal Tip Speed Ratio
 B = 3  # Number of Turbine Blades
 r = 10  # Radial Position (m)
 c = 1.29  # Chord Length (m)
-theta = 4.85  # Pitch Angle (degrees)
+theta = 4.85 # Pitch Angle (degrees)
 
 rho = 1.225  # Air Density (kg/m^3)
 ac = 1/3  # Critical Induction Factor
@@ -38,10 +38,8 @@ omega = (tsr * V0) / R  # Angular Velocity (rad/s)
 print(f"And if the Nominal Tip Speed Ratio is {tsr} Then the Angular "
       f"Velocity is {round(omega, 2)} rad/s")
 
-
 xi = (tsr * r) / R  # Local Velocity Ratio
 s = (c * B) / (2 * np.pi * r)  # Solidity
-omega = (tsr * V0) / R  # Angular Velocity (constant over different radii)
 
 aa = 0  # Initial Induction Factor
 ar = 0  # Initial Radial Induction Factor
@@ -58,6 +56,11 @@ aa_list = []
 ar_list = []
 K_list = []
 
+# Import Cl, Cd functions
+fcl, fcd = BEM.cld_func("Aerofoil-data\\CLD.csv")
+
+# fcl, fcd = BEM.cld_func('Aerofoil-data\\NACA 63-415 AIRFOIL Aerodynamic Data.csv')
+
 # Iterate to a constant value (1D Actuator theory also invalid for a > 0.5)
 for i in range(20):
     # Relative Wind Angle (radians)
@@ -66,8 +69,8 @@ for i in range(20):
     # Angle of Attack (degrees)
     alpha = phi * (180 / np.pi) - theta
 
-    # Import Cl, Cd functions
-    fcl, fcd = BEM.cld_func('Aerofoil-data\\CLD.csv')
+    # if alpha > 19.25 or alpha < -15.5:
+    #     alpha = 5
 
     Cl = float(fcl(alpha))  # Lift Coefficient
     Cd = float(fcd(alpha))  # Drag Coefficient

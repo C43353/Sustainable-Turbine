@@ -35,6 +35,9 @@ def cld_func(filename):
     fcl = interpolate.interp1d(info[:, 0], info[:, 1])
     fcd = interpolate.interp1d(info[:, 0], info[:, 2])
 
+    fcl = interpolate.CubicSpline(info[:, 0], info[:, 1])
+    fcd = interpolate.CubicSpline(info[:, 0], info[:, 2])
+
     return [fcl, fcd]
 
 

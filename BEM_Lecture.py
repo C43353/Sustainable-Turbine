@@ -20,31 +20,24 @@ BEM Using CLD from lectures folder to match with lectures data
 
 Code has -
 Constants:
-    angular velocity (with wind or stay constant to keep power const)
-    pitch angle (with radial position)
+    angular velocity (stay constant to keep power const)
+    
 Variables:
     radial position
     wind speed
-    chord length (is a linear func at the moment, should be more advanced
-                  maybe use c = (5.6 * (R ** 2)) / (B * Cl * r * (tsr ** 2)))
-
+    chord length (Using lecture chord lengths)
+    (is a linear func at the moment, should be more advanced maybe use
+     c = (5.6 * (R ** 2)) / (B * Cl * r * (tsr ** 2)))
+    pitch angle (Using lecture pitch angles)
+    
 Notes -
-Kind of works, power output doesn't have a peak and Cp is about half what it
-should be according to lecture notes graphs (may be due to having a constant
-                                             chord length?)
-
-Appears to work for 20 m radius but not for much bigger without decreasing the
-outer radial node
-
-For any given outer radius the minimum radius has to be over 0.5m
-
 Not sure if final segmental force and torque plots are correct (have just
 removed the lowest radial node to allow plotting)
 """
 
 # Constants (currently, may change to dependent on r)
 B = 3  # Number of Blades
-R = 20.94  # Radius (m)
+R = 20.5  # Radius (m)
 rho = 1.225  # Air Density (kg/m^3)
 omega = 2.83  # Angular Veolcity (rad/s) (Constant for varying wind speeds)
 ac = 1/3  # Critical Induction Factor (Just use 1/3 as stated in lecture)
@@ -54,18 +47,21 @@ ac = 1/3  # Critical Induction Factor (Just use 1/3 as stated in lecture)
 # (for some reason doesn't work below 0.5m and tip causes divide by 0)
 # is based on the angular velocity (or tsr)
 segments = np.linspace(0.6, R-0.1, 20)  # Radial Position of Nodes (m)
+segments = [4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.3]
 
-speeds = np.linspace(5, 30, 20)  # Wind Speed (m/s)
+speeds = np.linspace(5, 20, 20)  # Wind Speed (m/s)
 
 # (Need to make function for this, (not linear))
 chords = np.linspace(1.5, 0.5, len(segments))  # Chord Length for Radius
+chords = [1.63, 1.597, 1.54, 1.481, 1.42, 1.356, 1.294, 1.229, 1.163, 1.095, 1.026, 0.955, 0.881, 0.806, 0.705, 0.545, 0.265]
 
 # (Need to do similar to chords, based on radial position)
-theta = 4.85  # Pitch Angle (degree)
-
+thetas = np.linspace(0, 5, len(segments))  # Pitch Angle (degree)
+thetas = [20, 16.3, 13, 10.05, 7.45, 5.85, 4.85, 4, 3.15, 2.6, 2.02, 1.36, 0.77, 0.33, 0.14, 0.05, 0.02]
 
 
 fcl, fcd = BEM.cld_func('Aerofoil-data\\CLD.csv')
+# fcl, fcd = BEM.cld_func("Aerofoil-data\\NACA 63-415 AIRFOIL Aerodynamic Data.csv")
 
 # Initialise the lists for the variable lists
 phi_out = []
@@ -109,7 +105,8 @@ for n, V0 in enumerate(speeds):
 
     # Perform the calculations over the radial positions
     for m, r in enumerate(segments):
-        c = chords[m]  # Chord Length from list (can do same for theta)
+        c = chords[m]  # Chord Length from list
+        theta = thetas[m]  # Twist Angle from list
 
         phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, Vrel, Ct, Cpinit = \
             BEM.nodal(R, r, V0, c, theta, omega, B, fcl, fcd)
@@ -157,13 +154,17 @@ plt.figure(1, figsize=(6, 6))
 plt.plot(speeds, np.array(P_out) * 1E-3, marker='o')
 plt.title("Power")
 plt.xlabel("Wind Speed (m/s)")
+plt.xlim(5, 20)
 plt.ylabel("Power Output (kW)")
+plt.ylim(0, 600)
+plt.axhline(450, color="black", linestyle="--")
 plt.show()
 
 plt.figure(1, figsize=(6, 6))
 plt.plot(speeds, Cp_out, marker='o')
 plt.title("Power Coefficient")
 plt.xlabel("Wind Speed (m/s)")
+plt.xlim(5, 20)
 plt.ylabel("Power Coefficient")
 plt.ylim(0, 0.5)
 plt.show()
@@ -172,6 +173,7 @@ plt.figure(1, figsize=(6, 6))
 plt.plot(((omega*R)/np.array(speeds)), (np.array(Cp_out)*(27/16)), marker='o')
 plt.title("Normalised Coefficients")
 plt.xlabel(r"$\lambda$ = $\Omega$R/V$_0$")
+plt.xlim(2, 12)
 plt.ylabel("C$_p$ $\\times$ 27/16")
 plt.ylim(0, 1)
 plt.show()
