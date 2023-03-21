@@ -1,34 +1,27 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Mar  6 17:06:32 2023
+Created on Tue Mar 21 10:33:53 2023
 
 @author: C43353
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-import BEM_Functions as BEM
-
-"""
-Calculate the required minimum radius to generate the desired power output (P)
-based on the wind speed (V0), tip speed ratio (tsr), number of blades (B),
-chord length (c) and pitch angle (theta).
-This will then be used to calculate the angles, coefficients and factors that
-represent the blades.
-This includes the thrust coefficient (Ct) and peak loss factor (F).
-"""
+from Functions import cld_func
 
 P = 0.5E6  # Desired Power Output (MW)
 V0 = 10  # Nominal Wind Speed (m/s)
 tsr = 6  # Nominal Tip Speed Ratio
 B = 3  # Number of Turbine Blades
-r = 10  # Radial Position (m)
+r = 10.5  # Radial Position (m)
 c = 1.29  # Chord Length (m)
-theta = 4.85 # Pitch Angle (degrees)
+theta = 4.85  # Pitch Angle (degrees)
 
 rho = 1.225  # Air Density (kg/m^3)
 ac = 1/3  # Critical Induction Factor
 
+
+"""1D Initial Analysis to Find Minimum Radius"""
 # Calculate the minimum raidus to obtain power output
 R = np.sqrt((P * 27) / ((8 * np.pi * rho * (V0 ** 3))))
 print(f"The Minimum Radius Required to Obtain {P*10**-6} MW Output is "
@@ -37,6 +30,7 @@ print(f"The Minimum Radius Required to Obtain {P*10**-6} MW Output is "
 omega = (tsr * V0) / R  # Angular Velocity (rad/s)
 print(f"And if the Nominal Tip Speed Ratio is {tsr} Then the Angular "
       f"Velocity is {round(omega, 2)} rad/s")
+
 
 xi = (tsr * r) / R  # Local Velocity Ratio
 s = (c * B) / (2 * np.pi * r)  # Solidity
@@ -57,9 +51,7 @@ ar_list = []
 K_list = []
 
 # Import Cl, Cd functions
-fcl, fcd = BEM.cld_func("Aerofoil-data\\CLD.csv")
-
-# fcl, fcd = BEM.cld_func('Aerofoil-data\\NACA 63-415 AIRFOIL Aerodynamic Data.csv')
+fcl, fcd = cld_func("CLD.csv")
 
 # Iterate to a constant value (1D Actuator theory also invalid for a > 0.5)
 for i in range(20):
