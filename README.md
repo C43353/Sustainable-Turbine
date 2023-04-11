@@ -5,7 +5,7 @@ Files in order of use:
   - Used to generate plots of the aerofoil shape profiles, and save them to the "Shape Profiles" file.
 
 2. Interpolation_Tests.py
-  - Just some initial tests on the type of interpolation to use, compares different methods against eachother.
+  - Just some initial tests on the type of interpolation to use, compares different methods against each other.
 
 3. CLD_Profile_Plotting.py
   - Used to generate plots of the aerofoil CLD profiles, and save them to the "CLD Profiles" file.
