@@ -1,7 +1,7 @@
 # Sustainable-Turbine
 
 Files in order of use:
-1. Profile_Plotting.py
+1. Shape_Plotting.py
   - Used to generate plots of the aerofoil shape profiles, and save them to the "Shape Profiles" file.
 
 2. Interpolation_Tests.py
@@ -11,7 +11,7 @@ Files in order of use:
   - Used to generate plots of the aerofoil CLD profiles, and save them to the "CLD Profiles" file.
   - Also used to generate plots fo the aerofil CLD profiles compared to their interpolated version, and save them to the "Compare CLD Profiles" file.
 
-4. CLD+Profile_Plotting.py
+4. CLD+Shape_Plotting.py
   - Used to generate plots of the aerofoil shape and CLD profiles side by side on one plot and save them to the "CLD + Shape Profiles" file.
 
 5. Functions.py
