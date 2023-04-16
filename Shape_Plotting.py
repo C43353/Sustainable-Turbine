@@ -67,7 +67,8 @@ plt.show()
 # Initialise the figure for the overlay plot
 plt.figure(1, figsize=(12, 12))
 
-for i in [0, 0, 5, 46, 19, 27, 10, 24, 28, 22, 20, 39, 43, 37, 45, 44, 35]:
+# for i in [0, 0, 5, 46, 19, 27, 10, 24, 28, 22, 20, 39, 43, 37, 45, 44, 35]:
+for i in [42, 46, 4, 24, 12, 36, 26, 48, 13, 34, 33, 3, 11, 45, 15, 23, 38]:
     # Set the file number containing aerofoil data
     number = i
 

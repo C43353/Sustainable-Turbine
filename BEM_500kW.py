@@ -107,6 +107,8 @@ for n, thetap in enumerate(thetaps):
     tau_out = []
     P_out = []
     Cp_out = []
+    tsr_out = []
+
 
     # Add fixed pitch angle to varying pitch angle
     thetas = thetas + thetap
@@ -139,7 +141,7 @@ for n, thetap in enumerate(thetaps):
 
             # Use nodal function to calculate outputs for radial position
             phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, Vrel, Ct, Cpinit = \
-                nodal(R, r, V0, c, theta, omega, B, fcl, fcd)
+                nodal(R, r, V0, c, theta, omega, B, rho, fcl, fcd)
 
             # Append the outputs for radial position to lists
             phi_list.append(phi)
@@ -185,6 +187,7 @@ for n, thetap in enumerate(thetaps):
         tau_out.append(tau)
         P_out.append(P)
         Cp_out.append(Cp)
+        tsr_out.append((omega * R) / V0)  # Tip Speed Ratio)
 
     phi_final.append(phi_out)
     alpha_final.append(alpha_out)
@@ -231,7 +234,7 @@ plt.xlabel(r"$\xi$$_i$ = $\Omega$$r_i$/$V_0$")
 plt.xlim(1, 6.05)
 plt.ylabel(r"$\tau$$_i$, kNm; $T_i$, kN")
 plt.ylim(0, 3.5)
-plt.legend(labels=[r"$\tau$$_i$", "$T_i$"])
+plt.legend(labels=["$T_i$", r"$\tau$$_i$"])
 plt.show()
 
 # Plot Induction Factor in 3D
