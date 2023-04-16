@@ -19,6 +19,7 @@ Files in order of use:
     - cld_func() creates functions that allow the interpolation of Cl and Cd values from a given CLD file from the Aerofoil-data.zip file.
     - nodal() takes the inputs for the wind turbine at a radial position and outputs the nodal values including nodal forces.
     - forces() integrates between the segments to find the torque and normal force for each segment of the blade.
+    - nodal_twist() for a given wind speed and nodal position will calculate the twist angle and chord length for optimum performance at that wind speed, rotation speed, and airfoil profile.
 
 6. Part_1.py
   - This is the proof of concept of the lecture notes, uses 1D analysis to find a suitable radius of the blade, then calculates the nodal outputs for a specific radial position on the blade.
@@ -27,4 +28,5 @@ Files in order of use:
   - Uses the lecture notes and variables stated in them to calculate the power output and other plots of a 500kW turbine at varying wind speeds and global pitch angles. (Should be compared to lecture slides to ensure correct calculations)
 
 8. BEM_8MW.py
-  - Uses the code from BEM_500kW.py, just changes the outer radius to 85m to allow larger power generation, the aerofoil profile, chord length and pitch angle will also vary in this compared to BEM_500kW.py.
+  - Uses nodal_twist() to create the optimum turbine blade for a given radius and rotation speed at a set wind speed (currently 10 m/s).
+  - The created blade profile is used in BEM in the same way as BEM_500kW.py to calculate power output, forces etc.
