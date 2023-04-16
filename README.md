@@ -27,6 +27,10 @@ Files in order of use:
 7. BEM_500kW.py
   - Uses the lecture notes and variables stated in them to calculate the power output and other plots of a 500kW turbine at varying wind speeds and global pitch angles. (Should be compared to lecture slides to ensure correct calculations)
 
-8. BEM_8MW.py
-  - Uses nodal_twist() to create the optimum turbine blade for a given radius and rotation speed at a set wind speed (currently 10 m/s).
+8. Aerofoil_Ranking.py
+  - Used to create a list of the airfoil profiles by ordering by lift to drag coefficient raio (higher better).
+  - The profiles for the blade are decided by selecting every 3rd element from this list to create an even profile of airfoils down the length of the blade.
+
+9. BEM_8MW.py
+  - Uses Aerofoil_Ranking.py and nodal_twist() to create the optimum turbine blade for a given radius and rotation speed at a set wind speed (currently 10 m/s).
   - The created blade profile is used in BEM in the same way as BEM_500kW.py to calculate power output, forces etc.
