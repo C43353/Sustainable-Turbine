@@ -29,6 +29,8 @@ This is then plotted to allow easier comprehension.
 Notes -
 Not sure if final segmental force and torque plots are correct (have just
 removed the lowest radial node to allow plotting)
+
+Segment locations are from the centre of hub, blade length is R-segments[0]
 """
 
 
@@ -50,7 +52,7 @@ omega = (tsr * 10) / R  # Angular Velocity (dependent on tip speed ratio)
 speeds = np.linspace(5, 20, 31)
 
 # Radial Position of Nodes (m)
-segments = np.linspace(2, R-0.2, N)
+segments = np.linspace(3.5, R-0.75, N)
 # segments = np.array([2, 4, 6, 10, 16,
 #                      22, 28, 34, 40, 46,
 #                      52, 58, 64, 70, 76,
@@ -60,10 +62,17 @@ segments = np.linspace(2, R-0.2, N)
 thetaps = np.array([20, 16, 12, 8, 5, 0])
 
 
+# Initial Profiles
+init_profiles = [0, 0, 5, 46, 19,
+                 27, 10, 24, 28, 22,
+                 20, 39, 43, 37, 45,
+                 44, 35]
+
+
 """ Rank Airfoils, Find Optimum Angle of Attack """
 # Create dictionaries to store data
 data = {}
-maxcld = {}
+maxcld1 = {}
 
 # Define the zipfile that stores all the cld data CSVs
 zf = zipfile.ZipFile("Aerofoil-data.zip")
@@ -81,9 +90,9 @@ for number in range(51):
 
     data[number][3] = data[number][1] / data[number][2]
 
-    maxcld[number] = data[number].loc[data[number][3].idxmax()]
+    maxcld1[number] = data[number].loc[data[number][3].idxmax()]
 
-maxcld = {key: val for key, val in sorted(maxcld.items(),
+maxcld = {key: val for key, val in sorted(maxcld1.items(),
                                           key=lambda ele: ele[1][3])}
 
 # Select every 3rd profile starting at element 3 (profile 42)
@@ -92,8 +101,17 @@ profilescld = list(maxcld.items())[2::3]
 # Create a list of the profiles for the turbine
 profiles = [x[0] for x in profilescld]
 
-# Create a list of the optimum angle of attacks for the profiles
-aoa = [x[1][0] for x in profilescld]
+# profiles = [list(maxcld.items())[-1][0] for x in segments]
+
+# # Initial Profiles
+# profiles = [0, 0, 5, 46, 19,
+#             27, 10, 24, 28, 22,
+#             20, 39, 43, 37, 45,
+#             44, 35]
+
+
+# Create a list of the angle of attacks for selected profiles
+aoa = [list(maxcld1.items())[x][1][0] for x in profiles]
 
 
 """
@@ -119,9 +137,10 @@ for m, r in enumerate(segments):
 
 # Mirror the chord lengths about the third in the list for realistic sizes
 original_chords = list(chords)
-chords[0] = int(chords[2])
+chords[0] = 0.9 * chords[2]
 chords[1] = (chords[2] + chords[0]) / 2
 
+thetas[0] = 0
 
 """ Perform Calculations Over Varying Global Pitch Angles """
 # Initialise the lists for pitch angle output lists
@@ -362,63 +381,59 @@ plt.show()
 # plt.show()
 
 # Plot the power output against wind speed for all global pitch angles
+x = r"$\theta$$_p$"
 plt.figure(1, figsize=(6, 6))
-for i in range(len(P_final)):
-    plt.plot(speeds, np.array(list(reversed(P_final)))[i]/1E6)
+for i, tp in enumerate(thetaps):
+    plt.plot(speeds,
+             np.array(list(reversed(P_final)))[i]/1E6,
+             label=f"{x} = {tp}")
 plt.title("Power Against Wind Speed")
 plt.xlabel(r"$V_0$, m/s")
 plt.xlim(min(speeds), max(speeds))
 plt.ylabel("P, MW")
 plt.ylim(0, 15)
 plt.axhline(8, color="black", linestyle="--")
-plt.legend(labels=[r"$\theta$$_p$ = 0",
-                   r"$\theta$$_p$ = 5",
-                   r"$\theta$$_p$ = 8",
-                   r"$\theta$$_p$ = 12",
-                   r"$\theta$$_p$ = 16",
-                   r"$\theta$$_p$ = 20"])
+plt.legend()
 plt.show()
 
 # Plot the power coefficient against wind speed for all global pitch angles
+x = r"$\theta$$_p$"
 plt.figure(1, figsize=(6, 6))
-for i in range(len(Cp_final)):
-    plt.plot(speeds, np.array(list(reversed(Cp_final)))[i])
+for i, tp in enumerate(thetaps):
+    plt.plot(speeds,
+             np.array(list(reversed(Cp_final)))[i],
+             label=f"{x} = {tp}")
 plt.title("Power Coefficient Against Wind Speed")
 plt.xlabel(r"$V_0$, m/s")
 plt.xlim(min(speeds), max(speeds))
 plt.ylabel("Cp")
 plt.ylim(0, 0.5)
-plt.legend(labels=[r"$\theta$$_p$ = 0",
-                   r"$\theta$$_p$ = 5",
-                   r"$\theta$$_p$ = 8",
-                   r"$\theta$$_p$ = 12",
-                   r"$\theta$$_p$ = 16",
-                   r"$\theta$$_p$ = 20"])
+plt.legend()
 plt.show()
 
 # Plot power coefficient against tip speed ratio for all global pitch angles
+x = r"$\theta$$_p$"
 plt.figure(1, figsize=(6, 6))
-for i in range(len(Cp_final)):
+for i, tp in enumerate(thetaps):
     plt.plot(((omega*R)/np.array(speeds)),
-             (np.array(list(reversed(Cp_final))[i])*(27/16)), marker='o')
+             (np.array(list(reversed(Cp_final))[i])*(27/16)),
+             marker='o',
+             label=f"{x} = {tp}")
     plt.title("Normalised")
     plt.xlabel(r"$\lambda$ = $\Omega$R/V$_0$ (Tip Speed Ratio)")
     # plt.xlim(2, 12)
     plt.ylabel("C$_p$ $\\times$ 27/16 (Normalised Power Coefficient)")
     plt.ylim(0, 1)
-    plt.legend(labels=[r"$\theta$$_p$ = 0",
-                       r"$\theta$$_p$ = 5",
-                       r"$\theta$$_p$ = 8",
-                       r"$\theta$$_p$ = 12",
-                       r"$\theta$$_p$ = 16",
-                       r"$\theta$$_p$ = 20"])
+    plt.legend()
 plt.show()
 
 # Plot the normal force against power output for all global pitch angles
+x = r"$\theta$$_p$"
 plt.figure(1, figsize=(6, 6))
-for i in range(len(P_final)):
+for i, tp in enumerate(thetaps):
     plt.plot(np.array(list(reversed(P_final)))[i]/1E6,
-             np.sum(list(reversed(T_final))[i], 1)/1E3)
+             np.sum(list(reversed(T_final))[i], 1)/1E3,
+             label=f"{x} = {tp}")
 plt.title("Normal Force Against Power Output")
 plt.xlabel("P, MW")
 plt.xlim(0, 15)
@@ -426,21 +441,7 @@ plt.ylabel("T, kN")
 # plt.ylim(0, 8)
 plt.ylim(bottom=0)
 plt.axvline(8, color="black", linestyle="--")
-plt.legend(labels=[r"$\theta$$_p$ = 0",
-                   r"$\theta$$_p$ = 5",
-                   r"$\theta$$_p$ = 8",
-                   r"$\theta$$_p$ = 12",
-                   r"$\theta$$_p$ = 16",
-                   r"$\theta$$_p$ = 20"])
-plt.show()
-
-# Plot the chord length against radial position
-plt.figure(1, figsize=(12, 6))
-plt.title("Blade Distribution", fontsize=20)
-plt.plot(segments, chords, marker="o")
-plt.plot(segments, np.array(thetas)/10, marker="o")
-plt.xlabel("$r_i$, m", fontsize=15)
-plt.ylabel(r"$c_i$, m; $\theta$$_i$/10$\degree$", fontsize=15)
+plt.legend()
 plt.show()
 
 
@@ -470,48 +471,59 @@ plt.show()
 # plt.colorbar(label=r"Relative Wind Angle ($\phi$) / rad")
 # plt.show()
 
-# # Plot Normal Nodal Force on contour
-# plt.figure(1, figsize=(12, 6))
-# plt.contourf(segments, speeds, np.array(fn_out)/1000,
-#              50, cmap="gist_earth_r")
-# plt.xlabel("Radial Position / m")
-# plt.ylabel("Wind Speed / ms$^-$$^1$")
-# plt.colorbar(label="Normal Nodal Force (kN/m)")
-# plt.show()
+# Plot Normal Nodal Force on contour
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, np.array(fn_out)/1000,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Normal Nodal Force (kN/m)")
+plt.show()
 
-# # Plot Rotational Nodal Force on contour
-# plt.figure(1, figsize=(12, 6))
-# plt.contourf(segments, speeds, np.array(fr_out)/1000,
-#              50, cmap="gist_earth_r")
-# plt.xlabel("Radial Position / m")
-# plt.ylabel("Wind Speed / ms$^-$$^1$")
-# plt.colorbar(label="Rotational Nodal Force (kN/m)")
-# plt.show()
+# Plot Rotational Nodal Force on contour
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, np.array(fr_out)/1000,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Rotational Nodal Force (kN/m)")
+plt.show()
 
-# # Plot Normal Segment Force on contour
-# plt.figure(1, figsize=(12, 6))
-# plt.contourf(segments[-(len(segments)-1):], speeds, np.array(T_out)/1000,
-#              50, cmap="gist_earth_r")
-# plt.xlabel("Radial Position / m")
-# plt.ylabel("Wind Speed / ms$^-$$^1$")
-# plt.colorbar(label="Normal Segment Force (kN)")
-# plt.show()
+# Plot Normal Segment Force on contour
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments[-(len(segments)-1):], speeds, np.array(T_out)/1000,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Normal Segment Force (kN)")
+plt.show()
 
-# # Plot Segmental Torque on contour
-# plt.figure(1, figsize=(12, 6))
-# plt.contourf(segments[-(len(segments)-1):], speeds, np.array(tau_out)/1000,
-#              50, cmap="gist_earth_r")
-# plt.xlabel("Radial Position / m")
-# plt.ylabel("Wind Speed / ms$^-$$^1$")
-# plt.colorbar(label="Segmental Torque (kNm)")
-# plt.show()
+# Plot Segmental Torque on contour
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments[-(len(segments)-1):], speeds, np.array(tau_out)/1000,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Segmental Torque (kNm)")
+plt.show()
 
 
-"""Plotting the profiles overlayed"""
+""" Demonstration of Blade Shape """
+# Plot the chord length against radial position
+plt.figure(1, figsize=(12, 6))
+plt.title("Blade Distribution", fontsize=20)
+plt.plot(segments, chords, marker="o")
+plt.plot(segments, np.array(thetas)/10, marker="o")
+plt.xlabel("$r_i$, m", fontsize=15)
+plt.ylabel(r"$c_i$, m; $\theta$$_i$/10$\degree$", fontsize=15)
+plt.show()
+
+
+# Plotting the profiles overlayed
 # Initialise the figure for the overlay plot
 plt.figure(1, figsize=(12, 12))
-colour = iter(plt.cm.rainbow(np.linspace(0, 1, 17)))
-for i in [42, 46, 4, 24, 12, 36, 26, 48, 13, 34, 33, 3, 11, 45, 15, 23, 38]:
+colour = iter(plt.cm.rainbow(np.linspace(0, 1, N)))
+for i in profiles:
     # Set the file number containing aerofoil data
     number = i
 
@@ -527,10 +539,11 @@ for i in [42, 46, 4, 24, 12, 36, 26, 48, 13, 34, 33, 3, 11, 45, 15, 23, 38]:
 
     c = next(colour)
     # Plot the blade profiles overlayed on eachother
-    plt.plot(df[0], df[1], c=c)
+    plt.plot(df[0], df[1], c=c, label=i)
     plt.xlim(-0.1, 1.1)
     plt.ylim(-0.6, 0.6)
     plt.title("Overlay Plot of Profiles", fontsize=30)
     plt.axhline(y=0, color="black", linestyle="--")
 
+plt.legend()
 plt.show()
