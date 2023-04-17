@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Mar 21 10:40:33 2023
+Created on Mon Apr 17 13:24:21 2023
 
 @author: C43353
 """
@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from Functions import nodal, forces, nodal_twist
 
 """
-BEM for 8 MW Wind Turbine
+BEM for 15 MW Wind Turbine
 
 Code takes the number of blades, radius and tip speed ratio for turbine.
 Set the variation of wind speeds, segmental positions and global pitch angles.
@@ -38,7 +38,7 @@ rho = 1.225  # Air Density (kg/m^3)
 B = 3  # Number of Blades
 N = 17  # Number of Elements
 
-R = 85  # Radius (m)
+R = 115  # Radius (m)
 
 # omega = 2.83  # Angular Veolcity (rad/s) (Constant for varying wind speeds)
 tsr = 7  # Tip Speed Ratio (Used to define the angular velocity)
@@ -369,8 +369,8 @@ plt.title("Power Against Wind Speed")
 plt.xlabel(r"$V_0$, m/s")
 plt.xlim(min(speeds), max(speeds))
 plt.ylabel("P, MW")
-plt.ylim(0, 15)
-plt.axhline(8, color="black", linestyle="--")
+plt.ylim(0, 30)
+plt.axhline(15, color="black", linestyle="--")
 plt.legend(labels=[r"$\theta$$_p$ = 0",
                    r"$\theta$$_p$ = 5",
                    r"$\theta$$_p$ = 8",
@@ -421,11 +421,11 @@ for i in range(len(P_final)):
              np.sum(list(reversed(T_final))[i], 1)/1E3)
 plt.title("Normal Force Against Power Output")
 plt.xlabel("P, MW")
-plt.xlim(0, 15)
+plt.xlim(0, 30)
 plt.ylabel("T, kN")
 # plt.ylim(0, 8)
 plt.ylim(bottom=0)
-plt.axvline(8, color="black", linestyle="--")
+plt.axvline(15, color="black", linestyle="--")
 plt.legend(labels=[r"$\theta$$_p$ = 0",
                    r"$\theta$$_p$ = 5",
                    r"$\theta$$_p$ = 8",
