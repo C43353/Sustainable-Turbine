@@ -31,6 +31,6 @@ Files in order of use:
   - Used to create a list of the airfoil profiles by ordering by lift to drag coefficient raio (higher better).
   - The profiles for the blade are decided by selecting every 3rd element from this list to create an even profile of airfoils down the length of the blade.
 
-9. BEM_8MW.py
+9. BEM_8MW.py, BEM_3MW.py and BEM_15MW.py
   - Uses Aerofoil_Ranking.py and nodal_twist() to create the optimum turbine blade for a given radius and rotation speed at a set wind speed (currently 10 m/s).
   - The created blade profile is used in BEM in the same way as BEM_500kW.py to calculate power output, forces etc.
