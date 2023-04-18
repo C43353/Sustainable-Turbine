@@ -52,7 +52,7 @@ omega = (tsr * 10) / R  # Angular Velocity (dependent on tip speed ratio)
 speeds = np.linspace(5, 20, 31)
 
 # Radial Position of Nodes (m)
-segments = np.linspace(3.5, R-0.75, N)
+segments = np.linspace(4.5, R-0.5, N)
 # segments = np.array([2, 4, 6, 10, 16,
 #                      22, 28, 34, 40, 46,
 #                      52, 58, 64, 70, 76,
@@ -393,6 +393,7 @@ plt.xlim(min(speeds), max(speeds))
 plt.ylabel("P, MW")
 plt.ylim(0, 15)
 plt.axhline(8, color="black", linestyle="--")
+plt.axvline(10, color="black", linestyle="--")
 plt.legend()
 plt.show()
 
@@ -547,3 +548,9 @@ for i in profiles:
 
 plt.legend()
 plt.show()
+
+
+print("\nThe locations of each airfoil used are:", segments)
+print("\nThe profiles of each airfoil used are:", profiles)
+print("\nThe chord length of each airfoil used is:", chords)
+print("\nThe twist angle of each airfoil used is:", thetas)
