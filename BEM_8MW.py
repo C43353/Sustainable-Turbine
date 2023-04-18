@@ -550,7 +550,16 @@ plt.legend()
 plt.show()
 
 
+geometry = pd.DataFrame({"Segments": segments,
+                         "Profiles": profiles,
+                         "Chords": chords,
+                         "Twist": thetas})
+
 print("\nThe locations of each airfoil used are:", segments)
 print("\nThe profiles of each airfoil used are:", profiles)
 print("\nThe chord length of each airfoil used is:", chords)
 print("\nThe twist angle of each airfoil used is:", thetas)
+
+geometry.to_csv("Blade_Geometry.csv", index=True, header=True)
+
+print("\nBlade geometry saved to csv in Blade_Geometry.csv")
