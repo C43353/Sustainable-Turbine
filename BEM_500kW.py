@@ -301,6 +301,7 @@ plt.xlabel(r"$V_0$, m/s")
 plt.xlim(5, 20)
 plt.ylabel("P, kW")
 plt.ylim(0, 1000)
+plt.axhline(450, color="black", linestyle="--")
 plt.legend(labels=[r"$\theta$$_p$ = 0",
                    r"$\theta$$_p$ = 5",
                    r"$\theta$$_p$ = 8",
@@ -336,6 +337,7 @@ plt.xlabel("P, kW")
 plt.xlim(0, 900)
 plt.ylabel("T, kN")
 # plt.ylim(0, 8)
+plt.axvline(450, color="black", linestyle="--")
 plt.legend(labels=[r"$\theta$$_p$ = 0",
                    r"$\theta$$_p$ = 5",
                    r"$\theta$$_p$ = 8",

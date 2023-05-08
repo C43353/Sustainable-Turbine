@@ -10,7 +10,7 @@ import pandas as pd
 from scipy import interpolate
 import numpy as np
 import matplotlib.pyplot as plt
-from Functions import nodal, forces, nodal_twist
+from Functions import nodal, forces, nodal_chord
 
 """
 BEM for 3 MW Wind Turbine
@@ -112,7 +112,7 @@ for m, r in enumerate(segments):
     fcl = interpolate.interp1d(data[profile][0], data[profile][1])
     fcd = interpolate.interp1d(data[profile][0], data[profile][2])
 
-    theta, chord = nodal_twist(R, r, V0, alpha, omega, B, rho, fcl, fcd)
+    theta, chord = nodal_chord(R, r, V0, alpha, omega, B, rho, fcl, fcd)
 
     thetas.append(theta)
     chords.append(chord)
@@ -371,6 +371,7 @@ plt.xlim(min(speeds), max(speeds))
 plt.ylabel("P, MW")
 plt.ylim(0, 8)
 plt.axhline(3, color="black", linestyle="--")
+plt.axvline(10, color="black", linestyle="--")
 plt.legend(labels=[r"$\theta$$_p$ = 0",
                    r"$\theta$$_p$ = 5",
                    r"$\theta$$_p$ = 8",
@@ -505,6 +506,18 @@ plt.show()
 # plt.ylabel("Wind Speed / ms$^-$$^1$")
 # plt.colorbar(label="Segmental Torque (kNm)")
 # plt.show()
+
+
+""" Demonstration of Blade Shape """
+# Plot the chord length against radial position
+plt.figure(1, figsize=(12, 6))
+plt.title("Blade Distribution", fontsize=20)
+plt.plot(segments, chords, marker="o")
+plt.plot(segments, np.array(thetas)/10, marker="o")
+plt.xlabel("$r_i$, m", fontsize=15)
+plt.ylabel(r"$c_i$, m; $\theta$$_i$/10$\degree$", fontsize=15)
+plt.legend(["Chord Lengths", "Twist Angles"])
+plt.show()
 
 
 """Plotting the profiles overlayed"""

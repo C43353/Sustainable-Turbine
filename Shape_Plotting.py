@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import os
 import zipfile
 import pandas as pd
+import numpy as np
 
 """Check ""Shape Profiles"" file exists, if not create it"""
 path = "Shape Profiles"
@@ -66,8 +67,7 @@ plt.show()
 """Plotting the profiles overlayed"""
 # Initialise the figure for the overlay plot
 plt.figure(1, figsize=(12, 12))
-
-# for i in [0, 0, 5, 46, 19, 27, 10, 24, 28, 22, 20, 39, 43, 37, 45, 44, 35]:
+colour = iter(plt.cm.rainbow(np.linspace(0, 1, 17)))
 for i in [42, 46, 4, 24, 12, 36, 26, 48, 13, 34, 33, 3, 11, 45, 15, 23, 38]:
     # Set the file number containing aerofoil data
     number = i
@@ -82,8 +82,9 @@ for i in [42, 46, 4, 24, 12, 36, 26, 48, 13, 34, 33, 3, 11, 45, 15, 23, 38]:
     df = {0: pd.to_numeric(df[0]), 1: pd.to_numeric(df[1])}
     df = pd.DataFrame(df)
 
+    c = next(colour)
     # Plot the blade profiles overlayed on eachother
-    plt.plot(df[0], df[1])
+    plt.plot(df[0], df[1], c=c)
     plt.xlim(-0.1, 1.1)
     plt.ylim(-0.6, 0.6)
     plt.title("Overlay Plot of Profiles", fontsize=30)

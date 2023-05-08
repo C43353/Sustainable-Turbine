@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 from Functions import cld_func
 
 P = 8E6  # Desired Power Output (MW)
-V0 = 5.78947368  # Nominal Wind Speed (m/s)
-tsr = 6  # Nominal Tip Speed Ratio
+V0 = 10  # Nominal Wind Speed (m/s)
+tsr = 7  # Nominal Tip Speed Ratio
 B = 3  # Number of Turbine Blades
 r = 9.46875  # Radial Position (m)
 c = 1.597  # Chord Length (m)

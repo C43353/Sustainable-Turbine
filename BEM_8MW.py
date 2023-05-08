@@ -10,7 +10,7 @@ import pandas as pd
 from scipy import interpolate
 import numpy as np
 import matplotlib.pyplot as plt
-from Functions import nodal, forces, nodal_twist
+from Functions import nodal, forces, nodal_chord
 
 """
 BEM for 8 MW Wind Turbine
@@ -31,6 +31,12 @@ Not sure if final segmental force and torque plots are correct (have just
 removed the lowest radial node to allow plotting)
 
 Segment locations are from the centre of hub, blade length is R-segments[0]
+
+speeds[0] = 5 m/s
+speeds[10] = 10 m/s
+speeds[30] = 20 m/s
+T_out for bending force
+tau_out for torque force
 """
 
 
@@ -45,6 +51,7 @@ R = 85  # Radius (m)
 # omega = 2.83  # Angular Veolcity (rad/s) (Constant for varying wind speeds)
 tsr = 7  # Tip Speed Ratio (Used to define the angular velocity)
 omega = (tsr * 10) / R  # Angular Velocity (dependent on tip speed ratio)
+rpm = (omega * 60) / (2 * np.pi)
 
 
 """ Variables """
@@ -62,11 +69,11 @@ segments = np.linspace(4.5, R-0.5, N)
 thetaps = np.array([20, 16, 12, 8, 5, 0])
 
 
-# Initial Profiles
-init_profiles = [0, 0, 5, 46, 19,
-                 27, 10, 24, 28, 22,
-                 20, 39, 43, 37, 45,
-                 44, 35]
+# # Initial Profiles
+# init_profiles = [0, 0, 5, 46, 19,
+#                  27, 10, 24, 28, 22,
+#                  20, 39, 43, 37, 45,
+#                  44, 35]
 
 
 """ Rank Airfoils, Find Optimum Angle of Attack """
@@ -103,13 +110,6 @@ profiles = [x[0] for x in profilescld]
 
 # profiles = [list(maxcld.items())[-1][0] for x in segments]
 
-# # Initial Profiles
-# profiles = [0, 0, 5, 46, 19,
-#             27, 10, 24, 28, 22,
-#             20, 39, 43, 37, 45,
-#             44, 35]
-
-
 # Create a list of the angle of attacks for selected profiles
 aoa = [list(maxcld1.items())[x][1][0] for x in profiles]
 
@@ -130,7 +130,7 @@ for m, r in enumerate(segments):
     fcl = interpolate.interp1d(data[profile][0], data[profile][1])
     fcd = interpolate.interp1d(data[profile][0], data[profile][2])
 
-    theta, chord = nodal_twist(R, r, V0, alpha, omega, B, rho, fcl, fcd)
+    theta, chord = nodal_chord(R, r, V0, alpha, omega, B, rho, fcl, fcd)
 
     thetas.append(theta)
     chords.append(chord)
@@ -140,7 +140,7 @@ original_chords = list(chords)
 chords[0] = 0.9 * chords[2]
 chords[1] = (chords[2] + chords[0]) / 2
 
-thetas[0] = 0
+# thetas[0] = 0
 
 """ Perform Calculations Over Varying Global Pitch Angles """
 # Initialise the lists for pitch angle output lists
@@ -383,7 +383,7 @@ plt.show()
 # Plot the power output against wind speed for all global pitch angles
 x = r"$\theta$$_p$"
 plt.figure(1, figsize=(6, 6))
-for i, tp in enumerate(thetaps):
+for i, tp in enumerate(list(reversed(thetaps))):
     plt.plot(speeds,
              np.array(list(reversed(P_final)))[i]/1E6,
              label=f"{x} = {tp}")
@@ -400,7 +400,7 @@ plt.show()
 # Plot the power coefficient against wind speed for all global pitch angles
 x = r"$\theta$$_p$"
 plt.figure(1, figsize=(6, 6))
-for i, tp in enumerate(thetaps):
+for i, tp in enumerate(list(reversed(thetaps))):
     plt.plot(speeds,
              np.array(list(reversed(Cp_final)))[i],
              label=f"{x} = {tp}")
@@ -415,7 +415,7 @@ plt.show()
 # Plot power coefficient against tip speed ratio for all global pitch angles
 x = r"$\theta$$_p$"
 plt.figure(1, figsize=(6, 6))
-for i, tp in enumerate(thetaps):
+for i, tp in enumerate(list(reversed(thetaps))):
     plt.plot(((omega*R)/np.array(speeds)),
              (np.array(list(reversed(Cp_final))[i])*(27/16)),
              marker='o',
@@ -431,7 +431,7 @@ plt.show()
 # Plot the normal force against power output for all global pitch angles
 x = r"$\theta$$_p$"
 plt.figure(1, figsize=(6, 6))
-for i, tp in enumerate(thetaps):
+for i, tp in enumerate(list(reversed(thetaps))):
     plt.plot(np.array(list(reversed(P_final)))[i]/1E6,
              np.sum(list(reversed(T_final))[i], 1)/1E3,
              label=f"{x} = {tp}")
@@ -517,6 +517,7 @@ plt.plot(segments, chords, marker="o")
 plt.plot(segments, np.array(thetas)/10, marker="o")
 plt.xlabel("$r_i$, m", fontsize=15)
 plt.ylabel(r"$c_i$, m; $\theta$$_i$/10$\degree$", fontsize=15)
+plt.legend(["Chord Lengths", "Twist Angles"])
 plt.show()
 
 
@@ -563,3 +564,21 @@ print("\nThe twist angle of each airfoil used is:", thetas)
 geometry.to_csv("Blade_Geometry.csv", index=True, header=True)
 
 print("\nBlade geometry saved to csv in Blade_Geometry.csv")
+
+
+tauforces = pd.DataFrame({"5m/s": tau_out[0],
+                          "10m/s": tau_out[10],
+                          "20m/s": tau_out[30]})
+
+tauforces.to_csv("Torque_Forces.csv", index=True, header=True)
+
+print("\nTorque forces saved to csv in Torque_Forces.csv")
+
+
+normalforces = pd.DataFrame({"5m/s": T_out[0],
+                             "10m/s": T_out[10],
+                             "20m/s": T_out[30]})
+
+normalforces.to_csv("Normal_Forces.csv", index=True, header=True)
+
+print("\nNormal forces saved to csv in Torque_Forces.csv")
