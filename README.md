@@ -95,6 +95,7 @@ Demonstrate the progression of initial designs
 **7.1. Iteration_7.1.py**
   - Uses the same method but corrects chord length from going to infinity by mirroring about the third node
   - Produces lower forces than method 1 and produces a sensible looking blade profile
+  - Chosen "best" method
 
 **8. Iteration_8.py**
   - Is a silly test, uses all but the cylindrical profile (50 nodes and airfoils) to generate a blade profile and power output
