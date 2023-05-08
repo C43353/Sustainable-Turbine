@@ -70,30 +70,30 @@ Demonstrate the progression of initial designs
   - Calculates twist angle and chord length using nodal_chord function (method 1 - https://www.ehow.co.uk/how_7697179_calculate-along-wind-turbine-blade.html)
   - Uses chord length for lecture notes multiplied by 4
   - Uses lisnapce for radial positions from 4.5 - 84.5 m
-"""
+'''
 @@5.1. Iteration_5.1.py - uses the same method but corrects chord length from going to infinity by mirroring about the third node
   - Produces higher forces than method 3@@
-"""
+'''
 
 6. Iteration_6.py
   - Uses blade profiles ranked from low Cl/Cd to high, using every 3rd profile
   - Calculates twist angle and chord length using nodal_chord function (method 2 - https://www.mdpi.com/1996-1073/13/9/2320)
   - Uses chord length for lecture notes multiplied by 4
   - Uses lisnapce for radial positions from 4.5 - 84.5 m
-"""
+'''
 @@6.1. Iteration_6.1.py - uses the same method but corrects chord length from going to infinity by mirroring about the third node
   - Produces an odd blade profile (starts thin, gets thicker, gets thin again)@@
-"""
+'''
 
 7. Iteration_7.py
   - Uses blade profiles ranked from low Cl/Cd to high, using every 3rd profile
   - Calculates twist angle and chord length using nodal_chord function (method 3 - https://ieeexplore.ieee.org/abstract/document/7884538)
   - Uses chord length for lecture notes multiplied by 4
   - Uses lisnapce for radial positions from 4.5 - 84.5 m
-"""
+'''
 @@7.1. Iteration_7.1.py - uses the same method but corrects chord length from going to infinity by mirroring about the third node
   - Produces lower forces than method 1 and produces a sensible looking blade profile@@
-"""
+'''
 
 8. Iteration_8.py
   - Is a silly test, uses all but the cylindrical profile (50 nodes and airfoils) to generate a blade profile and power output
