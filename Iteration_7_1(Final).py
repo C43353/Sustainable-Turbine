@@ -53,11 +53,6 @@ tau_out for torque force
 """
 
 
-# Change default saved figure format to svg
-# (smaller file size than high resolution png but better quality)
-plt.rcParams['savefig.format'] = "svg"
-
-
 """ Constants """
 rho = 1.225  # Air Density (kg/m^3)
 
@@ -142,7 +137,7 @@ for m, r in enumerate(segments):
 original_chords = list(chords)
 chords[0] = 0.9 * chords[2]
 chords[1] = (chords[2] + chords[0]) / 2
-
+thetas[0] = 20
 
 """ Perform Calculations Over Varying Global Pitch Angles """
 # Initialise the lists for pitch angle output lists
@@ -295,6 +290,11 @@ for i, thetap in enumerate(thetaps):
 
 
 """ PLotting """
+# Change default saved figure format to svg
+# (smaller file size than high resolution png but better quality)
+plt.rcParams['savefig.format'] = "svg"
+
+
 """Check file path exists, if not create it"""
 path = os.path.join("Iterations",
                     os.path.basename(__file__).replace('.py', ''))
