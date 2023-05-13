@@ -8,6 +8,8 @@ Created on Tue Mar 21 10:40:33 2023
 import numpy as np
 import matplotlib.pyplot as plt
 from Functions import cld_func, nodal, forces
+import os
+import pandas as pd
 
 
 """
@@ -28,6 +30,11 @@ Notes -
 Not sure if final segmental force and torque plots are correct (have just
 removed the lowest radial node to allow plotting)
 """
+
+# Change default saved figure format to svg
+# (smaller file size than high resolution png but better quality)
+plt.rcParams['savefig.format'] = "svg"
+
 
 # Variable Constants
 R = 20.5  # Radius (m)
@@ -209,32 +216,257 @@ for n, thetap in enumerate(thetaps):
     Cp_final.append(Cp_out)
 
 
+# """ Plots To Compare to Lectures """
+
+# # Plot the nodal forces against radial position (V0 = 9.5 m/s)
+# plt.figure(1, figsize=(6, 6))
+# plt.plot(segments, np.array(fn_out[9])/1000, marker='o')
+# plt.plot(segments, np.array(fr_out[9])/1000, marker='o')
+# plt.title("Nodal Force (V0 = 9.5 m/s)")
+# plt.xlabel(r"$r_i$, m")
+# plt.xlim(4.5, 20.5)
+# plt.ylabel(r"$f_{N,i}$, $f_{R,i}$, kN/m")
+# plt.ylim(0, 1.8)
+# plt.legend(labels=[r"$f_{N,i}$", r"$f_{R,i}$"])
+# plt.show()
+
+# # Plot the normal force and torque against segmental speed ratio (V0 = 9.5 m/s)
+# plt.figure(1, figsize=(6, 6))
+# plt.plot((omega * np.array(segments[-(len(segments)-1):])) / speeds[9],
+#          np.array(T_out[9])/1000, marker='o')
+# plt.plot((omega * np.array(segments[-(len(segments)-1):])) / speeds[9],
+#          np.array(tau_out[9])/1000, marker='o')
+# plt.title("Segmental Forces (V0 = 9.5 m/s)")
+# plt.xlabel(r"$\xi$$_i$ = $\Omega$$r_i$/$V_0$")
+# plt.xlim(1, 6.05)
+# plt.ylabel(r"$\tau$$_i$, kNm; $T_i$, kN")
+# plt.ylim(0, 3.5)
+# plt.legend(labels=["$T_i$", r"$\tau$$_i$"])
+# plt.show()
+
+# # Plot Induction Factor in 3D
+# X, Y = np.meshgrid(segments, speeds)
+# fig = plt.figure()
+# ax = plt.axes(projection='3d')
+# ax.contour3D(Y, X, aa_out, 100)
+# ax.set_xlabel('Speeds (m/s)')
+# ax.set_ylabel('Segments (m)')
+# ax.set_zlabel('Induction Factor')
+# plt.show()
+
+# # Plot Angular Induction Factor in 3D
+# X, Y = np.meshgrid(segments, speeds)
+# fig = plt.figure()
+# ax = plt.axes(projection='3d')
+# ax.contour3D(Y, X, ar_out, 100)
+# ax.set_xlabel('Speeds (m/s)')
+# ax.set_ylabel('Segments (m)')
+# ax.set_zlabel('Radial Induction Factor')
+# ax.invert_xaxis()
+# ylim = ax.get_ylim()
+# ax.set_yticks(ax.get_yticks())
+# ax.set_ylim(ylim[::-1])
+# plt.show()
+
+# # Plot the power output against wind speed
+# plt.figure(1, figsize=(6, 6))
+# plt.plot(speeds, np.array(P_out) * 1E-3, marker='o')
+# plt.title("Power")
+# plt.xlabel("Wind Speed (m/s)")
+# plt.xlim(min(speeds), max(speeds))
+# plt.ylabel("Power Output (kW)")
+# plt.ylim(0, 600)
+# plt.axhline(450, color="black", linestyle="--")
+# plt.show()
+
+# # Plot the power coefficient against wind speed
+# plt.figure(1, figsize=(6, 6))
+# plt.plot(speeds, Cp_out, marker='o')
+# plt.title("Power Coefficient")
+# plt.xlabel("Wind Speed (m/s)")
+# plt.xlim(min(speeds), max(speeds))
+# plt.ylabel("Power Coefficient")
+# plt.ylim(0, 0.5)
+# plt.show()
+
+# # Plot the normalised power coefficient against tip speed ratio
+# plt.figure(1, figsize=(6, 6))
+# plt.plot(((omega*R)/np.array(speeds)), (np.array(Cp_out)*(27/16)), marker='o')
+# plt.title("Normalised")
+# plt.xlabel(r"$\lambda$ = $\Omega$R/V$_0$ (Tip Speed Ratio)")
+# plt.xlim(2, 12)
+# plt.ylabel("C$_p$ $\\times$ 27/16 (Normalised Power Coefficient)")
+# plt.ylim(0, 1)
+# plt.show()
+
+# # Plot the power output against wind speed for all global pitch angles
+# plt.figure(1, figsize=(6, 6))
+# for i in range(len(P_final)):
+#     plt.plot(speeds, np.array(list(reversed(P_final)))[i]/1000)
+# plt.title("Power Against Wind Speed")
+# plt.xlabel(r"$V_0$, m/s")
+# plt.xlim(5, 20)
+# plt.ylabel("P, kW")
+# plt.ylim(0, 1000)
+# plt.axhline(450, color="black", linestyle="--")
+# plt.legend(labels=[r"$\theta$$_p$ = 0",
+#                    r"$\theta$$_p$ = 5",
+#                    r"$\theta$$_p$ = 8",
+#                    r"$\theta$$_p$ = 12",
+#                    r"$\theta$$_p$ = 16",
+#                    r"$\theta$$_p$ = 20"])
+# plt.show()
+
+# # Plot the power coefficient against wind speed for all global pitch angles
+# plt.figure(1, figsize=(6, 6))
+# for i in range(len(P_final)):
+#     plt.plot(speeds, np.array(list(reversed(Cp_final)))[i])
+# plt.title("Power Coefficient Against Wind Speed")
+# plt.xlabel(r"$V_0$, m/s")
+# plt.xlim(5, 20)
+# plt.ylabel("Cp")
+# plt.ylim(0, 0.5)
+# plt.legend(labels=[r"$\theta$$_p$ = 0",
+#                    r"$\theta$$_p$ = 5",
+#                    r"$\theta$$_p$ = 8",
+#                    r"$\theta$$_p$ = 12",
+#                    r"$\theta$$_p$ = 16",
+#                    r"$\theta$$_p$ = 20"])
+# plt.show()
+
+# # Plot the normal force against power output for all global pitch angles
+# plt.figure(1, figsize=(6, 6))
+# for i in range(len(P_final)):
+#     plt.plot(np.array(list(reversed(P_final)))[i]/1000,
+#              np.sum(list(reversed(T_final))[i], 1)/1000)
+# plt.title("Normal Force Against Power Output")
+# plt.xlabel("P, kW")
+# plt.xlim(0, 900)
+# plt.ylabel("T, kN")
+# # plt.ylim(0, 8)
+# plt.axvline(450, color="black", linestyle="--")
+# plt.legend(labels=[r"$\theta$$_p$ = 0",
+#                    r"$\theta$$_p$ = 5",
+#                    r"$\theta$$_p$ = 8",
+#                    r"$\theta$$_p$ = 12",
+#                    r"$\theta$$_p$ = 16",
+#                    r"$\theta$$_p$ = 20"])
+# plt.show()
+
+# # """ Non Lecture Plots """
+
+# # # Plot Prandtl Loss Factor on contour
+# # plt.figure(1, figsize=(12, 6))
+# # plt.contourf(segments, speeds, F_out, 50, cmap="gist_earth_r")
+# # plt.xlabel("Radial Position / m")
+# # plt.ylabel("Wind Speed / ms$^-$$^1$")
+# # plt.colorbar(label="Prandtl Loss Factor")
+# # plt.show()
+
+# # # Plot Angle of Attack on contour
+# # plt.figure(1, figsize=(12, 6))
+# # plt.contourf(segments, speeds, alpha_out, 50, cmap="gist_earth_r")
+# # plt.xlabel("Radial Position / m")
+# # plt.ylabel("Wind Speed / ms$^-$$^1$")
+# # plt.colorbar(label=r"Angle of Attack ($\alpha$) / deg")
+# # plt.show()
+
+# # # Plot Relative Wind Angle on contour
+# # plt.figure(1, figsize=(12, 6))
+# # plt.contourf(segments, speeds, phi_out, 50, cmap="gist_earth_r")
+# # plt.xlabel("Radial Position / m")
+# # plt.ylabel("Wind Speed / ms$^-$$^1$")
+# # plt.colorbar(label=r"Relative Wind Angle ($\phi$) / rad")
+# # plt.show()
+
+# # # Plot Normal Nodal Force on contour
+# # plt.figure(1, figsize=(12, 6))
+# # plt.contourf(segments, speeds, np.array(fn_out)/1000,
+# #              50, cmap="gist_earth_r")
+# # plt.xlabel("Radial Position / m")
+# # plt.ylabel("Wind Speed / ms$^-$$^1$")
+# # plt.colorbar(label="Normal Nodal Force (kN/m)")
+# # plt.show()
+
+# # # Plot Rotational Nodal Force on contour
+# # plt.figure(1, figsize=(12, 6))
+# # plt.contourf(segments, speeds, np.array(fr_out)/1000,
+# #              50, cmap="gist_earth_r")
+# # plt.xlabel("Radial Position / m")
+# # plt.ylabel("Wind Speed / ms$^-$$^1$")
+# # plt.colorbar(label="Rotational Nodal Force (kN/m)")
+# # plt.show()
+
+# # # Plot Normal Segment Force on contour
+# # plt.figure(1, figsize=(12, 6))
+# # plt.contourf(segments[-(len(segments)-1):], speeds, np.array(T_out)/1000,
+# #              50, cmap="gist_earth_r")
+# # plt.xlabel("Radial Position / m")
+# # plt.ylabel("Wind Speed / ms$^-$$^1$")
+# # plt.colorbar(label="Normal Segment Force (kN)")
+# # plt.show()
+
+# # # Plot Segmental Torque on contour
+# # plt.figure(1, figsize=(12, 6))
+# # plt.contourf(segments[-(len(segments)-1):], speeds, np.array(tau_out)/1000,
+# #              50, cmap="gist_earth_r")
+# # plt.xlabel("Radial Position / m")
+# # plt.ylabel("Wind Speed / ms$^-$$^1$")
+# # plt.colorbar(label="Segmental Torque (kNm)")
+# # plt.show()
+
+
+# """ Demonstration of Blade Shape """
+# # Plot the chord length against radial position
+# plt.figure(1, figsize=(12, 6))
+# plt.title("Blade Distribution", fontsize=20)
+# plt.plot(segments, chords, marker="o")
+# plt.plot(segments, np.array(thetas)/10, marker="o")
+# plt.xlabel("$r_i$, m", fontsize=15)
+# plt.ylabel(r"$c_i$, m; $\theta$$_i$/10$\degree$", fontsize=15)
+# plt.legend(["Chord Lengths", "Twist Angles"])
+# plt.show()
+
+
+""" PLotting """
+"""Check file path exists, if not create it"""
+path = os.path.join("Iterations",
+                    os.path.basename(__file__).replace('.py', ''))
+isExist = os.path.isdir(path)
+if not isExist:
+    os.makedirs(path)
+    print("Path Created")
+
+
 """ Plots To Compare to Lectures """
 
-# Plot the nodal forces against radial position (V0 = 9.5 m/s)
+v = 10  # (The location in speeds containing desired wind speed)
+# Plot the nodal forces against radial position (v = 9 gives V0 = 9.5 m/s)
 plt.figure(1, figsize=(6, 6))
-plt.plot(segments, np.array(fn_out[9])/1000, marker='o')
-plt.plot(segments, np.array(fr_out[9])/1000, marker='o')
-plt.title("Nodal Force (V0 = 9.5 m/s)")
+plt.plot(segments, np.array(fn_out[v])/1E3, marker='o')
+plt.plot(segments, np.array(fr_out[v])/1E3, marker='o')
+plt.title((f"Nodal Forces (V0 = {speeds[v]} m/s)"))
 plt.xlabel(r"$r_i$, m")
-plt.xlim(4.5, 20.5)
+# plt.xlim(4.5, 20.5)
 plt.ylabel(r"$f_{N,i}$, $f_{R,i}$, kN/m")
-plt.ylim(0, 1.8)
+# plt.ylim(0, 1.8)
 plt.legend(labels=[r"$f_{N,i}$", r"$f_{R,i}$"])
+plt.savefig(os.path.join(path, "Nodal Forces"))
 plt.show()
 
 # Plot the normal force and torque against segmental speed ratio (V0 = 9.5 m/s)
 plt.figure(1, figsize=(6, 6))
 plt.plot((omega * np.array(segments[-(len(segments)-1):])) / speeds[9],
-         np.array(T_out[9])/1000, marker='o')
+         np.array(T_out[v])/1E3, marker='o')
 plt.plot((omega * np.array(segments[-(len(segments)-1):])) / speeds[9],
-         np.array(tau_out[9])/1000, marker='o')
-plt.title("Segmental Forces (V0 = 9.5 m/s)")
+         np.array(tau_out[v])/1E3, marker='o')
+plt.title(f"Segmental Forces (V0 = {speeds[v]} m/s)")
 plt.xlabel(r"$\xi$$_i$ = $\Omega$$r_i$/$V_0$")
-plt.xlim(1, 6.05)
+# plt.xlim(1, 6.05)
 plt.ylabel(r"$\tau$$_i$, kNm; $T_i$, kN")
-plt.ylim(0, 3.5)
+# plt.ylim(0, 3.5)
 plt.legend(labels=["$T_i$", r"$\tau$$_i$"])
+plt.savefig(os.path.join(path, "Segmental Forces"))
 plt.show()
 
 # Plot Induction Factor in 3D
@@ -245,7 +477,9 @@ ax.contour3D(Y, X, aa_out, 100)
 ax.set_xlabel('Speeds (m/s)')
 ax.set_ylabel('Segments (m)')
 ax.set_zlabel('Induction Factor')
+plt.savefig(os.path.join(path, "3D Induction Factor"))
 plt.show()
+
 
 # Plot Angular Induction Factor in 3D
 X, Y = np.meshgrid(segments, speeds)
@@ -259,94 +493,116 @@ ax.invert_xaxis()
 ylim = ax.get_ylim()
 ax.set_yticks(ax.get_yticks())
 ax.set_ylim(ylim[::-1])
+plt.savefig(os.path.join(path, "3D Angular Induction Factor"))
 plt.show()
 
-# Plot the power output against wind speed
-plt.figure(1, figsize=(6, 6))
-plt.plot(speeds, np.array(P_out) * 1E-3, marker='o')
-plt.title("Power")
-plt.xlabel("Wind Speed (m/s)")
-plt.xlim(min(speeds), max(speeds))
-plt.ylabel("Power Output (kW)")
-plt.ylim(0, 600)
-plt.axhline(450, color="black", linestyle="--")
-plt.show()
+# # Plot the power output against wind speed
+# plt.figure(1, figsize=(6, 6))
+# plt.plot(speeds, np.array(P_out) * 1E-6, marker='o')
+# plt.title("Power")
+# plt.xlabel("Wind Speed (m/s)")
+# plt.xlim(min(speeds), max(speeds))
+# plt.ylabel("Power Output (MW)")
+# plt.ylim(0, 10)
+# plt.axhline(8, color="black", linestyle="--")
+# plt.show()
 
-# Plot the power coefficient against wind speed
-plt.figure(1, figsize=(6, 6))
-plt.plot(speeds, Cp_out, marker='o')
-plt.title("Power Coefficient")
-plt.xlabel("Wind Speed (m/s)")
-plt.xlim(min(speeds), max(speeds))
-plt.ylabel("Power Coefficient")
-plt.ylim(0, 0.5)
-plt.show()
+# # Plot the power coefficient against wind speed
+# plt.figure(1, figsize=(6, 6))
+# plt.plot(speeds, Cp_out, marker='o')
+# plt.title("Power Coefficient")
+# plt.xlabel("Wind Speed (m/s)")
+# plt.xlim(min(speeds), max(speeds))
+# plt.ylabel("Power Coefficient")
+# plt.ylim(0, 0.5)
+# plt.show()
 
-# Plot the normalised power coefficient against tip speed ratio
-plt.figure(1, figsize=(6, 6))
-plt.plot(((omega*R)/np.array(speeds)), (np.array(Cp_out)*(27/16)), marker='o')
-plt.title("Normalised")
-plt.xlabel(r"$\lambda$ = $\Omega$R/V$_0$ (Tip Speed Ratio)")
-plt.xlim(2, 12)
-plt.ylabel("C$_p$ $\\times$ 27/16 (Normalised Power Coefficient)")
-plt.ylim(0, 1)
-plt.show()
+# # Plot the normalised power coefficient against tip speed ratio
+# plt.figure(1, figsize=(6, 6))
+# plt.plot(((omega*R)/np.array(speeds)),
+#          (np.array(Cp_out)*(27/16)), marker='o')
+# plt.title("Normalised")
+# plt.xlabel(r"$\lambda$ = $\Omega$R/V$_0$ (Tip Speed Ratio)")
+# # plt.xlim(2, 12)
+# plt.ylabel("C$_p$ $\\times$ 27/16 (Normalised Power Coefficient)")
+# plt.ylim(0, 1)
+# plt.show()
 
 # Plot the power output against wind speed for all global pitch angles
+x = r"$\theta$$_p$"
+degree_sign = u'\N{DEGREE SIGN}'
 plt.figure(1, figsize=(6, 6))
-for i in range(len(P_final)):
-    plt.plot(speeds, np.array(list(reversed(P_final)))[i]/1000)
+for i, tp in enumerate(reversed(thetaps)):
+    plt.plot(speeds,
+             np.array(list(reversed(P_final)))[i]/1E3,
+             label=f"{x} = {tp}{degree_sign}")
 plt.title("Power Against Wind Speed")
 plt.xlabel(r"$V_0$, m/s")
-plt.xlim(5, 20)
-plt.ylabel("P, kW")
-plt.ylim(0, 1000)
+plt.xlim(min(speeds), max(speeds))
+plt.ylabel("P, MW")
+plt.ylim(0, 800)
 plt.axhline(450, color="black", linestyle="--")
-plt.legend(labels=[r"$\theta$$_p$ = 0",
-                   r"$\theta$$_p$ = 5",
-                   r"$\theta$$_p$ = 8",
-                   r"$\theta$$_p$ = 12",
-                   r"$\theta$$_p$ = 16",
-                   r"$\theta$$_p$ = 20"])
+# plt.axvline(10, color="black", linestyle="--")
+plt.legend()
+plt.savefig(os.path.join(path, "Power Against Wind Speed"))
 plt.show()
 
 # Plot the power coefficient against wind speed for all global pitch angles
+x = r"$\theta$$_p$"
+degree_sign = u'\N{DEGREE SIGN}'
 plt.figure(1, figsize=(6, 6))
-for i in range(len(P_final)):
-    plt.plot(speeds, np.array(list(reversed(Cp_final)))[i])
+for i, tp in enumerate(reversed(thetaps)):
+    plt.plot(speeds,
+             np.array(list(reversed(Cp_final)))[i],
+             label=f"{x} = {tp}{degree_sign}")
 plt.title("Power Coefficient Against Wind Speed")
 plt.xlabel(r"$V_0$, m/s")
-plt.xlim(5, 20)
+plt.xlim(min(speeds), max(speeds))
 plt.ylabel("Cp")
 plt.ylim(0, 0.5)
-plt.legend(labels=[r"$\theta$$_p$ = 0",
-                   r"$\theta$$_p$ = 5",
-                   r"$\theta$$_p$ = 8",
-                   r"$\theta$$_p$ = 12",
-                   r"$\theta$$_p$ = 16",
-                   r"$\theta$$_p$ = 20"])
+plt.legend()
+plt.savefig(os.path.join(path, "Power Coefficient Against Wind Speed"))
+plt.show()
+
+# Plot power coefficient against tip speed ratio for all global pitch angles
+x = r"$\theta$$_p$"
+degree_sign = u'\N{DEGREE SIGN}'
+plt.figure(1, figsize=(6, 6))
+for i, tp in enumerate(reversed(thetaps)):
+    plt.plot(((omega*R)/np.array(speeds)),
+             (np.array(list(reversed(Cp_final))[i])*(27/16)),
+             marker='o',
+             label=f"{x} = {tp}{degree_sign}")
+    plt.title("Normalised")
+    plt.xlabel(r"$\lambda$ = $\Omega$R/V$_0$ (Tip Speed Ratio)")
+    # plt.xlim(2, 12)
+    plt.ylabel("C$_p$ $\\times$ 27/16 (Normalised Power Coefficient)")
+    plt.ylim(0, 1)
+plt.legend()
+plt.savefig(os.path.join(path, "Power Coefficient Against TSR"))
 plt.show()
 
 # Plot the normal force against power output for all global pitch angles
+x = r"$\theta$$_p$"
+degree_sign = u'\N{DEGREE SIGN}'
 plt.figure(1, figsize=(6, 6))
-for i in range(len(P_final)):
-    plt.plot(np.array(list(reversed(P_final)))[i]/1000,
-             np.sum(list(reversed(T_final))[i], 1)/1000)
+for i, tp in enumerate(reversed(thetaps)):
+    plt.plot(np.array(list(reversed(P_final)))[i]/1E3,
+             np.sum(list(reversed(T_final))[i], 1)/1E3,
+             label=f"{x} = {tp}{degree_sign}")
 plt.title("Normal Force Against Power Output")
-plt.xlabel("P, kW")
-plt.xlim(0, 900)
+plt.xlabel("P, MW")
+plt.xlim(0, 800)
 plt.ylabel("T, kN")
 # plt.ylim(0, 8)
+plt.ylim(bottom=0)
 plt.axvline(450, color="black", linestyle="--")
-plt.legend(labels=[r"$\theta$$_p$ = 0",
-                   r"$\theta$$_p$ = 5",
-                   r"$\theta$$_p$ = 8",
-                   r"$\theta$$_p$ = 12",
-                   r"$\theta$$_p$ = 16",
-                   r"$\theta$$_p$ = 20"])
+plt.legend()
+plt.savefig(os.path.join(path, "Normal Force Against Power Output"))
 plt.show()
 
-# """ Non Lecture Plots """
+
+""" Non Lecture Plots """
 
 # # Plot Prandtl Loss Factor on contour
 # plt.figure(1, figsize=(12, 6))
@@ -372,38 +628,152 @@ plt.show()
 # plt.colorbar(label=r"Relative Wind Angle ($\phi$) / rad")
 # plt.show()
 
-# # Plot Normal Nodal Force on contour
-# plt.figure(1, figsize=(12, 6))
-# plt.contourf(segments, speeds, np.array(fn_out)/1000,
-#              50, cmap="gist_earth_r")
-# plt.xlabel("Radial Position / m")
-# plt.ylabel("Wind Speed / ms$^-$$^1$")
-# plt.colorbar(label="Normal Nodal Force (kN/m)")
-# plt.show()
+# Plot Induction Factor on contour
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, aa_out,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Induction Factor")
+plt.savefig(os.path.join(path, "Induction Factor Contour"))
+plt.show()
 
-# # Plot Rotational Nodal Force on contour
-# plt.figure(1, figsize=(12, 6))
-# plt.contourf(segments, speeds, np.array(fr_out)/1000,
-#              50, cmap="gist_earth_r")
-# plt.xlabel("Radial Position / m")
-# plt.ylabel("Wind Speed / ms$^-$$^1$")
-# plt.colorbar(label="Rotational Nodal Force (kN/m)")
-# plt.show()
+# Plot Angular Induction Factor on contour
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, ar_out,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Angular Induction Factor")
+plt.savefig(os.path.join(path, "Angular Induction Factor Contour"))
+plt.show()
 
-# # Plot Normal Segment Force on contour
-# plt.figure(1, figsize=(12, 6))
-# plt.contourf(segments[-(len(segments)-1):], speeds, np.array(T_out)/1000,
-#              50, cmap="gist_earth_r")
-# plt.xlabel("Radial Position / m")
-# plt.ylabel("Wind Speed / ms$^-$$^1$")
-# plt.colorbar(label="Normal Segment Force (kN)")
-# plt.show()
+# Plot Normal Nodal Force on contour
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, np.array(fn_out)/1000,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Normal Nodal Force (kN/m)")
+plt.savefig(os.path.join(path, "Nodal Normal Forces Contour"))
+plt.show()
 
-# # Plot Segmental Torque on contour
-# plt.figure(1, figsize=(12, 6))
-# plt.contourf(segments[-(len(segments)-1):], speeds, np.array(tau_out)/1000,
-#              50, cmap="gist_earth_r")
-# plt.xlabel("Radial Position / m")
-# plt.ylabel("Wind Speed / ms$^-$$^1$")
-# plt.colorbar(label="Segmental Torque (kNm)")
-# plt.show()
+# Plot Rotational Nodal Force on contour
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments, speeds, np.array(fr_out)/1000,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Rotational Nodal Force (kN/m)")
+plt.savefig(os.path.join(path, "Nodal Rotational Forces Contour"))
+plt.show()
+
+# Plot Normal Segment Force on contour
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments[-(len(segments)-1):], speeds, np.array(T_out)/1000,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Normal Segment Force (kN)")
+plt.savefig(os.path.join(path, "Segmental Normal Forces Contour"))
+plt.show()
+
+# Plot Segmental Torque on contour
+plt.figure(1, figsize=(12, 6))
+plt.contourf(segments[-(len(segments)-1):], speeds, np.array(tau_out)/1000,
+             50, cmap="gist_earth_r")
+plt.xlabel("Radial Position / m")
+plt.ylabel("Wind Speed / ms$^-$$^1$")
+plt.colorbar(label="Segmental Torque (kNm)")
+plt.savefig(os.path.join(path, "Segmental Torque Forces Contour"))
+plt.show()
+
+
+""" Demonstration of Blade Shape """
+# Plot the chord length against radial position
+plt.figure(1, figsize=(12, 6))
+plt.title("Blade Distribution", fontsize=20)
+plt.plot(segments, chords, marker="o")
+plt.plot(segments, np.array(thetas)/10, marker="o")
+plt.xlabel("$r_i$, m", fontsize=15)
+plt.ylabel(r"$c_i$, m; $\theta$$_i$/10$\degree$", fontsize=15)
+plt.legend(["Chord Lengths", "Twist Angles"])
+plt.savefig(os.path.join(path, "Blade Shape"))
+plt.show()
+
+
+"""
+Sum the forces for over the length of the blade
+(low force at base, high at tip)
+"""
+sum_tau_final = []
+# enumerate by the global pitch angles
+for i, x in enumerate(tau_final):
+    sum_tau_out = []
+
+# enumerate by the wind speeds
+    for j, y in enumerate(x):
+        sum_tau = []
+
+# enumerate by the radial position
+        for k, z in enumerate(y):
+            sum_tau.append(sum(y[:k+1]))
+
+        sum_tau_out.append(sum_tau)
+
+    sum_tau_final.append(sum_tau_out)
+
+
+sum_T_final = []
+# enumerate by the global pitch angles
+for i, x in enumerate(T_final):
+    sum_T_out = []
+
+# enumerate by the wind speeds
+    for j, y in enumerate(x):
+        sum_T = []
+
+# enumerate by the radial position
+        for k, z in enumerate(y):
+            sum_T.append(sum(y[:k+1]))
+
+        sum_T_out.append(sum_T)
+
+    sum_T_final.append(sum_T_out)
+
+
+geometry = pd.DataFrame({"Segments": segments,
+                         "Chords": chords,
+                         "Twist": thetas})
+
+print("\nThe locations of each airfoil used are:\n", np.round(segments, 1))
+print("\nThe chord length of each airfoil used is:\n", np.round(chords, 1))
+print("\nThe twist angle of each airfoil used is:\n", np.round(thetas, 1))
+
+geometry.to_csv(os.path.join(path, "Blade_Geometry.csv"),
+                index=True,
+                header=True)
+
+print("\nBlade geometry saved to csv in Blade_Geometry.csv")
+
+
+tauforces = pd.DataFrame({"5m/s": tau_out[0],
+                          "10m/s": tau_out[10],
+                          "20m/s": tau_out[30]})
+
+tauforces.to_csv(os.path.join(path, "Torque_Forces.csv"),
+                 index=True,
+                 header=True)
+
+print("\nTorque forces saved to csv in Torque_Forces.csv")
+
+
+normalforces = pd.DataFrame({"5m/s": T_out[0],
+                             "10m/s": T_out[10],
+                             "20m/s": T_out[30]})
+
+normalforces.to_csv(os.path.join(path, "Normal_Forces.csv"),
+                    index=True,
+                    header=True)
+
+print("\nNormal forces saved to csv in Torque_Forces.csv")

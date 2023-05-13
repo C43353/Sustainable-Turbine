@@ -140,7 +140,6 @@ original_chords = list(chords)
 chords[0] = 0.9 * chords[2]
 chords[1] = (chords[2] + chords[0]) / 2
 
-# thetas[0] = 0
 
 """ Perform Calculations Over Varying Global Pitch Angles """
 # Initialise the lists for pitch angle output lists
@@ -215,17 +214,16 @@ for i, thetap in enumerate(thetaps):
         """ Perform Calculations Over Radial Position on Blade"""
         # Perform the calculations over the radial positions (segments)
         for m, r in enumerate(segments):
-            c = chords[m]  # Chord Length from list
-            theta = pitch[m]  # Twist Angle from list
 
             profile = profiles[m]  # Profile Cross section from list
+
             # Create a function to interpolate to find Cl and Cd
             fcl = interpolate.interp1d(data[profile][0], data[profile][1])
             fcd = interpolate.interp1d(data[profile][0], data[profile][2])
 
             # Use nodal function to calculate outputs for radial position
             phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, Vrel, Ct, Cpinit = \
-                nodal(R, r, V0, c, theta, omega, B, rho, fcl, fcd)
+                nodal(R, r, V0, chords[m], pitch[m], omega, B, rho, fcl, fcd)
 
             # Append the outputs for radial position to lists
             phi_list.append(phi)
@@ -518,6 +516,8 @@ plt.plot(segments, np.array(thetas)/10, marker="o")
 plt.xlabel("$r_i$, m", fontsize=15)
 plt.ylabel(r"$c_i$, m; $\theta$$_i$/10$\degree$", fontsize=15)
 plt.legend(["Chord Lengths", "Twist Angles"])
+for i, p in enumerate(profiles):
+    plt.text(segments[i], chords[i]-0.5, p, va="bottom", ha="center")
 plt.show()
 
 
@@ -549,6 +549,46 @@ for i in profiles:
 
 plt.legend()
 plt.show()
+
+
+"""
+Sum the forces for over the length of the blade
+(low force at base, high at tip)
+"""
+sum_tau_final = []
+# enumerate by the global pitch angles
+for i, x in enumerate(tau_final):
+    sum_tau_out = []
+
+# enumerate by the wind speeds
+    for j, y in enumerate(x):
+        sum_tau = []
+
+# enumerate by the radial position
+        for k, z in enumerate(y):
+            sum_tau.append(sum(y[:k+1]))
+
+        sum_tau_out.append(sum_tau)
+
+    sum_tau_final.append(sum_tau_out)
+
+
+sum_T_final = []
+# enumerate by the global pitch angles
+for i, x in enumerate(T_final):
+    sum_T_out = []
+
+# enumerate by the wind speeds
+    for j, y in enumerate(x):
+        sum_T = []
+
+# enumerate by the radial position
+        for k, z in enumerate(y):
+            sum_T.append(sum(y[:k+1]))
+
+        sum_T_out.append(sum_T)
+
+    sum_T_final.append(sum_T_out)
 
 
 geometry = pd.DataFrame({"Segments": segments,

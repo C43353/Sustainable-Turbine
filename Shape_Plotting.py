@@ -11,6 +11,13 @@ import zipfile
 import pandas as pd
 import numpy as np
 
+# Change default dpi for plots (used for png (svg is vector based))
+# plt.rcParams['figure.dpi'] = 600
+
+# Change default saved figure format to svg
+# (smaller file size than high resolution png but better quality)
+plt.rcParams['savefig.format'] = "svg"
+
 """Check ""Shape Profiles"" file exists, if not create it"""
 path = "Shape Profiles"
 isExist = os.path.isdir(path)

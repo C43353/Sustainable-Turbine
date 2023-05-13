@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon May  8 13:17:08 2023
+Created on Mon May  8 13:20:51 2023
 
 @author: C43353
 """
@@ -13,16 +13,25 @@ import matplotlib.pyplot as plt
 from Functions import nodal, forces, nodal_chord
 import os
 
+
+"""
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FINAL CODE USED TO CREATE THE SOLIDWORKS MODEL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+"""
+
+
 """
 BEM for 8 MW Wind Turbine
 
 Code takes the number of blades, radius and tip speed ratio for turbine.
 Set the variation of wind speeds, segmental positions and global pitch angles.
 
-Iteration 6 - Using blade profiles ranked in order of Cl/Cd
+Iteration 7.1 - Using blade profiles ranked in order of Cl/Cd
               Calculate twist angle and chord length using nodal_chord
-              Chord length calculated using method 2:
-                  https://www.mdpi.com/1996-1073/13/9/2320
+              Chord length calculated using method 3:
+                  https://ieeexplore.ieee.org/abstract/document/7884538
+              Corrected chord length to be more constant over length
               Using linspace radius from 4.5-84.5 m
 
 This blade will then undergo BEM theory to produce force distributions,
@@ -108,6 +117,7 @@ profiles = [x[0] for x in profilescld]
 
 aoa = [list(maxcld1.items())[x][1][0] for x in profiles]
 
+
 """
 Calculate Twist Angles and Chord Length for Blade
 Using Optimum Angle of Attack
@@ -123,10 +133,15 @@ for m, r in enumerate(segments):
     fcl = interpolate.interp1d(data[profile][0], data[profile][1])
     fcd = interpolate.interp1d(data[profile][0], data[profile][2])
 
-    theta, chord = nodal_chord(R, r, V0, alpha, omega, B, rho, fcl, fcd, 2)
+    theta, chord = nodal_chord(R, r, V0, alpha, omega, B, rho, fcl, fcd, 3)
 
     thetas.append(theta)
     chords.append(chord)
+
+# Mirror the chord lengths about the third in the list for realistic sizes
+original_chords = list(chords)
+chords[0] = 0.9 * chords[2]
+chords[1] = (chords[2] + chords[0]) / 2
 
 
 """ Perform Calculations Over Varying Global Pitch Angles """
@@ -202,17 +217,15 @@ for i, thetap in enumerate(thetaps):
         """ Perform Calculations Over Radial Position on Blade"""
         # Perform the calculations over the radial positions (segments)
         for m, r in enumerate(segments):
-            c = chords[m]  # Chord Length from list
-            theta = pitch[m]  # Twist Angle from list
-
             profile = profiles[m]  # Profile Cross section from list
+
             # Create a function to interpolate to find Cl and Cd
             fcl = interpolate.interp1d(data[profile][0], data[profile][1])
             fcd = interpolate.interp1d(data[profile][0], data[profile][2])
 
             # Use nodal function to calculate outputs for radial position
             phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, Vrel, Ct, Cpinit = \
-                nodal(R, r, V0, c, theta, omega, B, rho, fcl, fcd)
+                nodal(R, r, V0, chords[m], pitch[m], omega, B, rho, fcl, fcd)
 
             # Append the outputs for radial position to lists
             phi_list.append(phi)

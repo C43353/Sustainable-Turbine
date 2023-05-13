@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon May  8 13:17:08 2023
+Created on Wed May 10 20:10:35 2023
 
 @author: C43353
 """
@@ -13,17 +13,27 @@ import matplotlib.pyplot as plt
 from Functions import nodal, forces, nodal_chord
 import os
 
+
+"""
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+THIS IS NOT THE FINAL CODE USED TO CREATE THE SOLIDWORKS MODEL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+"""
+
+
 """
 BEM for 8 MW Wind Turbine
 
 Code takes the number of blades, radius and tip speed ratio for turbine.
 Set the variation of wind speeds, segmental positions and global pitch angles.
 
-Iteration 6 - Using blade profiles ranked in order of Cl/Cd
-              Calculate twist angle and chord length using nodal_chord
-              Chord length calculated using method 2:
-                  https://www.mdpi.com/1996-1073/13/9/2320
-              Using linspace radius from 4.5-84.5 m
+Iteration 7.2 - Using modified blade profiles ranked in order of Cl/Cd
+                Blade profiles modified to create a more stable chord profile
+                Calculate twist angle and chord length using nodal_chord
+                Chord length calculated using method 3:
+                https://ieeexplore.ieee.org/abstract/document/7884538
+                Corrected chord length to be more constant over length
+                Using linspace radius from 4.5-84.5 m
 
 This blade will then undergo BEM theory to produce force distributions,
 power outputs etc.
@@ -59,7 +69,7 @@ R = 85  # Radius (m)
 
 # omega = 2.83  # Angular Veolcity (rad/s) (Constant for varying wind speeds)
 tsr = 7  # Tip Speed Ratio (Used to define the angular velocity)
-omega = (tsr * 10) / R  # Angular Velocity (dependent on tip speed ratio)
+omega = (tsr * 10.5) / R  # Angular Velocity (dependent on tip speed ratio)
 rpm = (omega * 60) / (2 * np.pi)
 
 
@@ -68,7 +78,7 @@ rpm = (omega * 60) / (2 * np.pi)
 speeds = np.linspace(5, 20, 31)
 
 # Radial Position of Nodes (m)
-segments = np.linspace(4.5, R-0.5, N)
+segments = np.linspace(2.5, R-0.5, N)
 
 # Global Pitch Angle
 thetaps = np.array([20, 16, 12, 8, 5, 0])
@@ -106,7 +116,18 @@ profilescld = list(maxcld.items())[2::3]
 # Create a list of the profiles for the turbine
 profiles = [x[0] for x in profilescld]
 
+profiles = [42, 46, 4, 24, 12,
+            36, 26, 48, 13, 34,
+            33, 29, 2, 45, 15,
+            23, 38]
+
+# profiles = [42, 46, 19, 24, 12,
+#             36, 26, 48, 13, 34,
+#             33, 29, 2, 45, 15,
+#             23, 38]
+
 aoa = [list(maxcld1.items())[x][1][0] for x in profiles]
+
 
 """
 Calculate Twist Angles and Chord Length for Blade
@@ -115,7 +136,7 @@ Using Optimum Angle of Attack
 thetas = []
 chords = []
 for m, r in enumerate(segments):
-    V0 = 10  # m/s Nominal Wind Speed
+    V0 = 10.5  # m/s Nominal Wind Speed
     alpha = aoa[m]  # Twist Angle from list
 
     profile = profiles[m]  # Profile Cross section from list
@@ -123,10 +144,15 @@ for m, r in enumerate(segments):
     fcl = interpolate.interp1d(data[profile][0], data[profile][1])
     fcd = interpolate.interp1d(data[profile][0], data[profile][2])
 
-    theta, chord = nodal_chord(R, r, V0, alpha, omega, B, rho, fcl, fcd, 2)
+    theta, chord = nodal_chord(R, r, V0, alpha, omega, B, rho, fcl, fcd, 3)
 
     thetas.append(theta)
     chords.append(chord)
+
+# Mirror the chord lengths about the third in the list for realistic sizes
+original_chords = list(chords)
+chords[0] = 0.9 * chords[2]
+chords[1] = (chords[2] + chords[0]) / 2
 
 
 """ Perform Calculations Over Varying Global Pitch Angles """
@@ -202,17 +228,15 @@ for i, thetap in enumerate(thetaps):
         """ Perform Calculations Over Radial Position on Blade"""
         # Perform the calculations over the radial positions (segments)
         for m, r in enumerate(segments):
-            c = chords[m]  # Chord Length from list
-            theta = pitch[m]  # Twist Angle from list
-
             profile = profiles[m]  # Profile Cross section from list
+
             # Create a function to interpolate to find Cl and Cd
             fcl = interpolate.interp1d(data[profile][0], data[profile][1])
             fcd = interpolate.interp1d(data[profile][0], data[profile][2])
 
             # Use nodal function to calculate outputs for radial position
             phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, Vrel, Ct, Cpinit = \
-                nodal(R, r, V0, c, theta, omega, B, rho, fcl, fcd)
+                nodal(R, r, V0, chords[m], pitch[m], omega, B, rho, fcl, fcd)
 
             # Append the outputs for radial position to lists
             phi_list.append(phi)
