@@ -1,5 +1,8 @@
 # Sustainable-Turbine
 
+All scripts should be able to run straight after placing all files into same folder.
+They call data from the zipfile and generate their own files to store plots and csv data.
+
 **Files in order of use:**  
 **1. Shape_Plotting.py**
   - Used to generate plots of the aerofoil shape profiles, and save them to the "Shape Profiles" file.
