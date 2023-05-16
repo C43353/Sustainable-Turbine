@@ -39,10 +39,6 @@ power outputs etc.
 
 This is then plotted to allow easier comprehension.
 
-Notes -
-Not sure if final segmental force and torque plots are correct (have just
-removed the lowest radial node to allow plotting)
-
 Segment locations are from the centre of hub, blade length is R-segments[0]
 
 speeds[0] = 5 m/s
@@ -53,21 +49,25 @@ tau_out for torque force
 """
 
 
-""" Constants """
-rho = 1.225  # Air Density (kg/m^3)
-
-B = 3  # Number of Blades
-N = 17  # Number of Elements
-
+""" Inputs """
 R = 85  # Radius (m)
 
-# omega = 2.83  # Angular Veolcity (rad/s) (Constant for varying wind speeds)
+V0 = 10  # m/s Nominal Wind Speed
+
+B = 3  # Number of Blades
+
 tsr = 7  # Tip Speed Ratio (Used to define the angular velocity)
+
+
+""" Constants """
+rho = 1.225  # Air Density (kg/m^3)
+N = 17  # Number of Elements
+
 omega = (tsr * 10) / R  # Angular Velocity (dependent on tip speed ratio)
 rpm = (omega * 60) / (2 * np.pi)
 
 
-""" Variables """
+""" Sweep Parameters """
 # Wind Speeds (m/s)
 speeds = np.linspace(5, 20, 31)
 
@@ -120,7 +120,6 @@ Using Optimum Angle of Attack
 thetas = []
 chords = []
 for m, r in enumerate(segments):
-    V0 = 10  # m/s Nominal Wind Speed
     alpha = aoa[m]  # Twist Angle from list
 
     profile = profiles[m]  # Profile Cross section from list
@@ -406,11 +405,24 @@ plt.title("Power Against Wind Speed")
 plt.xlabel(r"$V_0$, m/s")
 plt.xlim(min(speeds), max(speeds))
 plt.ylabel("P, MW")
-plt.ylim(0, 15)
+plt.ylim(0, 16)
 plt.axhline(8, color="black", linestyle="--")
 # plt.axvline(10, color="black", linestyle="--")
 plt.legend()
 plt.savefig(os.path.join(path, "Power Against Wind Speed"))
+plt.show()
+
+# Plot the power output against wind speed for 0 global pitch angle
+plt.figure(1, figsize=(6, 6))
+plt.plot(speeds, np.array(P_final)[5]/1E6)
+plt.title("Power Against Wind Speed")
+plt.xlabel(r"$V_0$, m/s")
+plt.xlim(min(speeds), max(speeds))
+plt.ylabel("P, MW")
+plt.ylim(0, 16)
+plt.axhline(8, color="black", linestyle="--")
+# plt.axvline(10, color="black", linestyle="--")
+plt.savefig(os.path.join(path, "Power Against Wind Speed (0 Pitch)"))
 plt.show()
 
 # Plot the power coefficient against wind speed for all global pitch angles
@@ -430,6 +442,18 @@ plt.legend()
 plt.savefig(os.path.join(path, "Power Coefficient Against Wind Speed"))
 plt.show()
 
+# Plot the power coefficient against wind speed for 0 global pitch angle
+plt.figure(1, figsize=(6, 6))
+plt.plot(speeds, Cp_final[5])
+plt.title("Power Coefficient Against Wind Speed")
+plt.xlabel(r"$V_0$, m/s")
+plt.xlim(min(speeds), max(speeds))
+plt.ylabel("Cp")
+plt.ylim(0, 0.5)
+plt.savefig(os.path.join(path,
+                         "Power Coefficient Against Wind Speed (0 Pitch)"))
+plt.show()
+
 # Plot power coefficient against tip speed ratio for all global pitch angles
 x = r"$\theta$$_p$"
 degree_sign = u'\N{DEGREE SIGN}'
@@ -439,13 +463,27 @@ for i, tp in enumerate(reversed(thetaps)):
              (np.array(list(reversed(Cp_final))[i])*(27/16)),
              marker='o',
              label=f"{x} = {tp}{degree_sign}")
-    plt.title("Normalised")
-    plt.xlabel(r"$\lambda$ = $\Omega$R/V$_0$ (Tip Speed Ratio)")
-    # plt.xlim(2, 12)
-    plt.ylabel("C$_p$ $\\times$ 27/16 (Normalised Power Coefficient)")
-    plt.ylim(0, 1)
+plt.title("Normalised")
+plt.xlabel(r"$\lambda$ = $\Omega$R/V$_0$ (Tip Speed Ratio)")
+# plt.xlim(2, 12)
+plt.ylabel("C$_p$ $\\times$ 27/16 (Normalised Power Coefficient)")
+plt.ylim(0, 1)
 plt.legend()
 plt.savefig(os.path.join(path, "Power Coefficient Against TSR"))
+plt.show()
+
+# Plot power coefficient against tip speed ratio for 0 global pitch angle
+plt.figure(1, figsize=(6, 6))
+plt.plot(((omega*R)/np.array(speeds)),
+         (np.array(Cp_final[5])*(27/16)),
+         marker='o')
+plt.title("Normalised")
+plt.xlabel(r"$\lambda$ = $\Omega$R/V$_0$ (Tip Speed Ratio)")
+# plt.xlim(2, 12)
+plt.ylabel("C$_p$ $\\times$ 27/16 (Normalised Power Coefficient)")
+plt.ylim(0, 1)
+plt.legend()
+plt.savefig(os.path.join(path, "Power Coefficient Against TSR (0 Pitch)"))
 plt.show()
 
 # Plot the normal force against power output for all global pitch angles
@@ -458,7 +496,7 @@ for i, tp in enumerate(reversed(thetaps)):
              label=f"{x} = {tp}{degree_sign}")
 plt.title("Normal Force Against Power Output")
 plt.xlabel("P, MW")
-plt.xlim(0, 15)
+plt.xlim(0, 16)
 plt.ylabel("T, kN")
 # plt.ylim(0, 8)
 plt.ylim(bottom=0)
@@ -599,7 +637,8 @@ plt.show()
 
 """
 Sum the forces for over the length of the blade
-(low force at base, high at tip)
+(high force at base, low at tip)
+pointless, need to use moments rather than forces
 """
 sum_tau_final = []
 # enumerate by the global pitch angles
@@ -612,7 +651,7 @@ for i, x in enumerate(tau_final):
 
 # enumerate by the radial position
         for k, z in enumerate(y):
-            sum_tau.append(sum(y[:k+1]))
+            sum_tau.append(sum(y[:len(y)-k]))
 
         sum_tau_out.append(sum_tau)
 
@@ -630,7 +669,8 @@ for i, x in enumerate(T_final):
 
 # enumerate by the radial position
         for k, z in enumerate(y):
-            sum_T.append(sum(y[:k+1]))
+            # sum_T.append(sum(list(reversed(y[:k+1]))))
+            sum_T.append(sum(y[:len(y)-k]))
 
         sum_T_out.append(sum_T)
 

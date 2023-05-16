@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from Functions import nodal, forces, cld_func
 import os
 
+
 """
 BEM for 8 MW Wind Turbine
 
@@ -28,10 +29,6 @@ power outputs etc.
 
 This is then plotted to allow easier comprehension.
 
-Notes -
-Not sure if final segmental force and torque plots are correct (have just
-removed the lowest radial node to allow plotting)
-
 Segment locations are from the centre of hub, blade length is R-segments[0]
 
 speeds[0] = 5 m/s
@@ -40,11 +37,6 @@ speeds[30] = 20 m/s
 T_out for bending force
 tau_out for torque force
 """
-
-
-# Change default saved figure format to svg
-# (smaller file size than high resolution png but better quality)
-plt.rcParams['savefig.format'] = "svg"
 
 
 """ Constants """
@@ -275,6 +267,11 @@ for i, thetap in enumerate(thetaps):
 
 
 """ PLotting """
+# Change default saved figure format to svg
+# (smaller file size than high resolution png but better quality)
+plt.rcParams['savefig.format'] = "svg"
+
+
 """Check file path exists, if not create it"""
 path = os.path.join("Iterations",
                     os.path.basename(__file__).replace('.py', ''))
@@ -386,7 +383,7 @@ plt.title("Power Against Wind Speed")
 plt.xlabel(r"$V_0$, m/s")
 plt.xlim(min(speeds), max(speeds))
 plt.ylabel("P, MW")
-plt.ylim(0, 15)
+plt.ylim(0, 16)
 plt.axhline(8, color="black", linestyle="--")
 # plt.axvline(10, color="black", linestyle="--")
 plt.legend()
@@ -438,7 +435,7 @@ for i, tp in enumerate(reversed(thetaps)):
              label=f"{x} = {tp}{degree_sign}")
 plt.title("Normal Force Against Power Output")
 plt.xlabel("P, MW")
-plt.xlim(0, 15)
+plt.xlim(0, 16)
 plt.ylabel("T, kN")
 # plt.ylim(0, 8)
 plt.ylim(bottom=0)

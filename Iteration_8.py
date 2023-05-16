@@ -291,6 +291,11 @@ for i, thetap in enumerate(thetaps):
 
 
 """ PLotting """
+# Change default saved figure format to svg
+# (smaller file size than high resolution png but better quality)
+plt.rcParams['savefig.format'] = "svg"
+
+
 """Check file path exists, if not create it"""
 path = os.path.join("Iterations",
                     os.path.basename(__file__).replace('.py', ''))

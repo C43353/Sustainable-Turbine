@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon May  8 12:41:03 2023
+Created on Sat May 13 22:44:00 2023
 
 @author: C43353
 """
 
+import math
 import zipfile
 import pandas as pd
 from scipy import interpolate
@@ -15,52 +16,61 @@ import os
 
 
 """
-BEM for 8 MW Wind Turbine
+BEM for x MW Wind Turbine
+Allows creation of any wind turbine with airfoil profiles used in Iteration_7_1
 
-Code takes the number of blades, radius and tip speed ratio for turbine.
+Inputs:
+    Desired power output
+    Nominal windspeed
+    Number of blades
+    Tip speed ratio
+
 Set the variation of wind speeds, segmental positions and global pitch angles.
 
-Iteration 5 - Using blade profiles ranked in order of Cl/Cd
-              Calculate twist angle and chord length using nodal_chord
-              Chord length calculated using method 1:
-                  https://www.ehow.co.uk/how_7697179_calculate-along-wind-turbine-blade.html
-              Using linspace radius from 4.5-84.5 m
+An optimum blade profile will be generated with chord and twist distribution
+for your nominal wind speed.
 
 This blade will then undergo BEM theory to produce force distributions,
-power outputs etc.
+power outputs etc. in order to test the performance.
 
 This is then plotted to allow easier comprehension.
 
-Segment locations are from the centre of hub, blade length is R-segments[0]
+Segment locations are from the centre of hub, blade length is R-segments[0].
 
-speeds[0] = 5 m/s
-speeds[10] = 10 m/s
-speeds[30] = 20 m/s
-T_out for bending force
-tau_out for torque force
+Could convert to a function in future rather than script.
 """
+
+""" Inputs """
+P0 = 10E6  # Desired Power Output (W)
+
+V0 = 10  # Nominal Wind Speed (m/s)
+
+B = 3  # Number of Blades
+
+tsr = 7  # Tip Speed Ratio (Used to define the angular velocity)
 
 
 """ Constants """
 rho = 1.225  # Air Density (kg/m^3)
-
-B = 3  # Number of Blades
 N = 17  # Number of Elements
 
-R = 85  # Radius (m)
+# Using 1D Actuator Find Required Turbine Radius for Desired Power Generation
+R = math.ceil(np.sqrt((P0 * 27) / ((8 * np.pi * rho * (V0 ** 3)))))
 
-# omega = 2.83  # Angular Veolcity (rad/s) (Constant for varying wind speeds)
-tsr = 7  # Tip Speed Ratio (Used to define the angular velocity)
-omega = (tsr * 10) / R  # Angular Velocity (dependent on tip speed ratio)
+omega = (tsr * V0) / R  # Angular Velocity (dependent on tip speed ratio)
 rpm = (omega * 60) / (2 * np.pi)
 
 
-""" Variables """
+""" Sweep Parameters """
 # Wind Speeds (m/s)
 speeds = np.linspace(5, 20, 31)
 
 # Radial Position of Nodes (m)
-segments = np.linspace(4.5, R-0.5, N)
+segments = np.linspace(4.5, R-0.2, N)
+# segments = np.array([2, 4, 6, 10, 16,
+#                      22, 28, 34, 40, 46,
+#                      52, 58, 64, 70, 76,
+#                      80, 84.8])
 
 # Global Pitch Angle
 thetaps = np.array([20, 16, 12, 8, 5, 0])
@@ -69,7 +79,7 @@ thetaps = np.array([20, 16, 12, 8, 5, 0])
 """ Rank Airfoils, Find Optimum Angle of Attack """
 # Create dictionaries to store data
 data = {}
-maxcld1 = {}
+maxcld = {}
 
 # Define the zipfile that stores all the cld data CSVs
 zf = zipfile.ZipFile("Aerofoil-data.zip")
@@ -87,9 +97,9 @@ for number in range(51):
 
     data[number][3] = data[number][1] / data[number][2]
 
-    maxcld1[number] = data[number].loc[data[number][3].idxmax()]
+    maxcld[number] = data[number].loc[data[number][3].idxmax()]
 
-maxcld = {key: val for key, val in sorted(maxcld1.items(),
+maxcld = {key: val for key, val in sorted(maxcld.items(),
                                           key=lambda ele: ele[1][3])}
 
 # Select every 3rd profile starting at element 3 (profile 42)
@@ -98,7 +108,9 @@ profilescld = list(maxcld.items())[2::3]
 # Create a list of the profiles for the turbine
 profiles = [x[0] for x in profilescld]
 
-aoa = [list(maxcld1.items())[x][1][0] for x in profiles]
+# Create a list of the optimum angle of attacks for the profiles
+aoa = [x[1][0] for x in profilescld]
+
 
 """
 Calculate Twist Angles and Chord Length for Blade
@@ -107,7 +119,7 @@ Using Optimum Angle of Attack
 thetas = []
 chords = []
 for m, r in enumerate(segments):
-    V0 = 10  # m/s Nominal Wind Speed
+    # c = chords[m]  # Chord Length from list
     alpha = aoa[m]  # Twist Angle from list
 
     profile = profiles[m]  # Profile Cross section from list
@@ -115,10 +127,15 @@ for m, r in enumerate(segments):
     fcl = interpolate.interp1d(data[profile][0], data[profile][1])
     fcd = interpolate.interp1d(data[profile][0], data[profile][2])
 
-    theta, chord = nodal_chord(R, r, V0, alpha, omega, B, rho, fcl, fcd, 1)
+    theta, chord = nodal_chord(R, r, V0, alpha, omega, B, rho, fcl, fcd)
 
     thetas.append(theta)
     chords.append(chord)
+
+# Mirror the chord lengths about the third in the list for realistic sizes
+original_chords = list(chords)
+chords[0] = int(chords[2])
+chords[1] = (chords[2] + chords[0]) / 2
 
 
 """ Perform Calculations Over Varying Global Pitch Angles """
@@ -390,8 +407,8 @@ plt.title("Power Against Wind Speed")
 plt.xlabel(r"$V_0$, m/s")
 plt.xlim(min(speeds), max(speeds))
 plt.ylabel("P, MW")
-plt.ylim(0, 16)
-plt.axhline(8, color="black", linestyle="--")
+plt.ylim(0, 2*P0*1E-6)
+plt.axhline(P0*1E-6, color="black", linestyle="--")
 # plt.axvline(10, color="black", linestyle="--")
 plt.legend()
 plt.savefig(os.path.join(path, "Power Against Wind Speed"))
@@ -442,11 +459,11 @@ for i, tp in enumerate(reversed(thetaps)):
              label=f"{x} = {tp}{degree_sign}")
 plt.title("Normal Force Against Power Output")
 plt.xlabel("P, MW")
-plt.xlim(0, 16)
+plt.xlim(0, 2*P0*1E-6)
 plt.ylabel("T, kN")
 # plt.ylim(0, 8)
 plt.ylim(bottom=0)
-plt.axvline(8, color="black", linestyle="--")
+plt.axvline(P0*1E-6, color="black", linestyle="--")
 plt.legend()
 plt.savefig(os.path.join(path, "Normal Force Against Power Output"))
 plt.show()
