@@ -24,7 +24,7 @@ Inputs:
     Desired power output - 15 MW
     Nominal windspeed - 10 m/s
     Number of blades - 3
-    Tip speed ratio - 7
+    Nominal Tip speed ratio - 7
 
 Set the variation of wind speeds, segmental positions and global pitch angles.
 
@@ -47,7 +47,7 @@ V0 = 10  # Nominal Wind Speed (m/s)
 
 B = 3  # Number of Blades
 
-tsr = 7  # Tip Speed Ratio (Used to define the angular velocity)
+tsr = 7  # Nominal Tip Speed Ratio (Used to define the angular velocity)
 
 
 """ Constants """
@@ -67,7 +67,7 @@ rpm = (omega * 60) / (2 * np.pi)
 speeds = np.linspace(5, 20, 31)
 
 # Radial Position of Nodes (m)
-segments = np.linspace(4.5, R-0.2, N)
+segments = np.linspace(R*0.05, R*0.995, N)
 # segments = np.array([2, 4, 6, 10, 16,
 #                      22, 28, 34, 40, 46,
 #                      52, 58, 64, 70, 76,

@@ -16,14 +16,15 @@ import os
 
 
 """
-BEM for x MW Wind Turbine
-Allows creation of any wind turbine with airfoil profiles used in Iteration_7_1
+BEM for x MW Wind Turbine (can input any conditions desired)
+Creates wind turbine geometry using method and airfoil profiles used in
+Iteration_7_1
 
 Inputs:
-    Desired power output
-    Nominal windspeed
-    Number of blades
-    Tip speed ratio
+    Desired power output - xx W
+    Nominal windspeed - xx m/s
+    Number of blades - xx
+    Nominal Tip speed ratio - xx
 
 Set the variation of wind speeds, segmental positions and global pitch angles.
 
@@ -43,11 +44,11 @@ Could convert to a function in future rather than script.
 """ Inputs """
 P0 = 10E6  # Desired Power Output (W)
 
-V0 = 10  # Nominal Wind Speed (m/s)
+V0 = 12  # Nominal Wind Speed (m/s)
 
-B = 3  # Number of Blades
+B = 10  # Number of Blades
 
-tsr = 7  # Tip Speed Ratio (Used to define the angular velocity)
+tsr = 7  # Nominal Tip Speed Ratio (Used to define the angular velocity)
 
 
 """ Constants """
@@ -63,10 +64,10 @@ rpm = (omega * 60) / (2 * np.pi)
 
 """ Sweep Parameters """
 # Wind Speeds (m/s)
-speeds = np.linspace(5, 20, 31)
+speeds = np.linspace(V0*0.5, V0*2, 31)
 
 # Radial Position of Nodes (m)
-segments = np.linspace(4.5, R-0.2, N)
+segments = np.linspace(R*0.05, R*0.995, N)
 # segments = np.array([2, 4, 6, 10, 16,
 #                      22, 28, 34, 40, 46,
 #                      52, 58, 64, 70, 76,
@@ -188,7 +189,7 @@ for i, thetap in enumerate(thetaps):
 
     """ Perform Calculations Over Varying Wind Speeds """
     # Perform calculations over wind speeds (speeds)
-    for n, V0 in enumerate(speeds):
+    for n, V in enumerate(speeds):
 
         # Initialise the lists for the radial outputs
         phi_list = []
@@ -221,7 +222,7 @@ for i, thetap in enumerate(thetaps):
 
             # Use nodal function to calculate outputs for radial position
             phi, alpha, Cl, Cd, Cn, Cr, F, aa, ar, fn, fr, Vrel, Ct, Cpinit = \
-                nodal(R, r, V0, c, theta, omega, B, rho, fcl, fcd)
+                nodal(R, r, V, c, theta, omega, B, rho, fcl, fcd)
 
             # Append the outputs for radial position to lists
             phi_list.append(phi)
@@ -247,7 +248,7 @@ for i, thetap in enumerate(thetaps):
         P = B * omega * sum(tau)
 
         # Calculate the power coefficient of the turbine
-        Cp = P / ((1/2) * np.pi * rho * (R ** 2) * (V0 ** 3))
+        Cp = P / ((1/2) * np.pi * rho * (R ** 2) * (V ** 3))
 
         # Append the outputs for wind speed to lists
         phi_out.append(phi_list)
@@ -268,7 +269,7 @@ for i, thetap in enumerate(thetaps):
         tau_out.append(tau)
         P_out.append(P)
         Cp_out.append(Cp)
-        tsr_out.append((omega * R) / V0)  # Tip Speed Ratio)
+        tsr_out.append((omega * R) / V)  # Tip Speed Ratio)
 
     phi_final.append(phi_out)
     alpha_final.append(alpha_out)
@@ -426,7 +427,7 @@ plt.title("Power Coefficient Against Wind Speed")
 plt.xlabel(r"$V_0$, m/s")
 plt.xlim(min(speeds), max(speeds))
 plt.ylabel("Cp")
-plt.ylim(0, 0.5)
+plt.ylim(0, 0.57)
 plt.legend()
 plt.savefig(os.path.join(path, "Power Coefficient Against Wind Speed"))
 plt.show()
