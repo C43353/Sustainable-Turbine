@@ -43,6 +43,9 @@ They call data from the zipfile and generate their own files to store plots and 
   - Uses Aerofoil_Ranking.py and nodal_twist() to create the optimum turbine blade for a given radius and rotation speed at a set wind speed (currently 10 m/s).
   - The created blade profile is used in BEM in the same way as BEM_500kW.py to calculate power output, forces etc.
 
+**11. BEM_xMW.py**
+  - Is essentially the same as BEM_8MW, 3MW and 15MW but placed there with the intention of changing the desired power output or other conditions to generate whatever turbine is desired using the aerofoil geometry found for Iteraion_7_1(Final)
+
 **Iteration Files:**  
 Demonstrate the progression of initial designs  
   
@@ -75,7 +78,7 @@ Demonstrate the progression of initial designs
   - Uses chord length for lecture notes multiplied by 4
   - Uses lisnapce for radial positions from 4.5 - 84.5 m  
 
-**5.1. Iteration_5.1.py**
+**5.1. Iteration_5_.py**
   - Uses the same method but corrects chord length from going to infinity by mirroring about the third node
   - Produces higher forces than method 3
 
@@ -85,7 +88,7 @@ Demonstrate the progression of initial designs
   - Uses chord length for lecture notes multiplied by 4
   - Uses lisnapce for radial positions from 4.5 - 84.5 m  
 
-**6.1. Iteration_6.1.py**
+**6.1. Iteration_6_1.py**
   - Uses the same method but corrects chord length from going to infinity by mirroring about the third node
   - Produces an odd blade profile (starts thin, gets thicker, gets thin again)
 
@@ -95,10 +98,14 @@ Demonstrate the progression of initial designs
   - Uses chord length for lecture notes multiplied by 4
   - Uses lisnapce for radial positions from 4.5 - 84.5 m  
 
-**7.1. Iteration_7.1.py**
+**7.1. Iteration_7_1(Final).py**
   - Uses the same method but corrects chord length from going to infinity by mirroring about the third node
   - Produces lower forces than method 1 and produces a sensible looking blade profile
   - Chosen "best" method
+
+**7.2. Iteration_7_2.py**
+  - Everything is the same as in Iteration_7_1.py however the profiles selected are (hopefully) better.
+  - This design is not final as it was created too late into the design process to implement.
 
 **8. Iteration_8.py**
   - Is a silly test, uses all but the cylindrical profile (50 nodes and airfoils) to generate a blade profile and power output
