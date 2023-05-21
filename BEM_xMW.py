@@ -42,11 +42,11 @@ Could convert to a function in future rather than script.
 """
 
 """ Inputs """
-P0 = 10E6  # Desired Power Output (W)
+P0 = 3E6  # Desired Power Output (W)
 
-V0 = 12  # Nominal Wind Speed (m/s)
+V0 = 10  # Nominal Wind Speed (m/s)
 
-B = 10  # Number of Blades
+B = 3  # Number of Blades
 
 tsr = 7  # Nominal Tip Speed Ratio (Used to define the angular velocity)
 

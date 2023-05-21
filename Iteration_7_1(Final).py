@@ -56,7 +56,7 @@ V0 = 10  # m/s Nominal Wind Speed
 
 B = 3  # Number of Blades
 
-tsr = 7  # Tip Speed Ratio (Used to define the angular velocity)
+tsr = 7  # Nominal Tip Speed Ratio (Used to define the angular velocity)
 
 
 """ Constants """
@@ -419,7 +419,7 @@ plt.title("Power Against Wind Speed")
 plt.xlabel(r"$V_0$, m/s")
 plt.xlim(min(speeds), max(speeds))
 plt.ylabel("P, MW")
-plt.ylim(0, 16)
+plt.ylim(0, 25)
 plt.axhline(8, color="black", linestyle="--")
 # plt.axvline(10, color="black", linestyle="--")
 plt.savefig(os.path.join(path, "Power Against Wind Speed (0 Pitch)"))
