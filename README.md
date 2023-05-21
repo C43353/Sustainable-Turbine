@@ -3,7 +3,7 @@
 All scripts should be able to run straight after placing all files into same folder.
 They call data from the zipfile and generate their own files to store plots and csv data.
 
-**Files in order of use:**  
+**Script Descriptions:**  
 **1. Shape_Plotting.py**
   - Used to generate plots of the aerofoil shape profiles, and save them to the "Shape Profiles" file.
 
@@ -45,6 +45,9 @@ They call data from the zipfile and generate their own files to store plots and 
 
 **11. BEM_xMW.py**
   - Is essentially the same as BEM_8MW, 3MW and 15MW but placed there with the intention of changing the desired power output or other conditions to generate whatever turbine is desired using the aerofoil geometry found for Iteraion_7_1(Final)
+
+**12. Spar Box Functions.py**
+  - Code used to generate the dimensions required for the spar box in the turbine.
 
 **Iteration Files:**  
 Demonstrate the progression of initial designs  
